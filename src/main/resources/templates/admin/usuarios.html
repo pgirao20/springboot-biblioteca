@@ -7,7 +7,7 @@
 <!-- ✅ Navbar -->
 <header th:replace="fragments/_header :: header(${active})"></header>
 
-<main class="container mt-4">
+<main class="container-fluid mt-4" style="max-width: 1500px;">
 
   <!-- 🔹 Tabs -->
   <ul class="nav nav-tabs mb-4">
@@ -22,7 +22,7 @@
   <div class="row">
     <!-- 🔹 Formulario -->
     <div class="col-md-4 mb-4">
-      <div class="card shadow-sm">
+      <div class="card border-0 shadow-sm">
         <div class="card-body">
           <h5 class="card-title mb-3" th:text="${nuevoUsuario.id == null} ? 'Registrar Usuario' : 'Editar Usuario'"></h5>
 
@@ -30,45 +30,50 @@
             <input type="hidden" th:field="*{id}">
 
             <div class="mb-3">
-              <label class="form-label">Usuario</label>
+              <label class="form-label fw-semibold">Usuario</label>
               <input type="text" class="form-control" placeholder="ej. jmorales24" th:field="*{usuario}" required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Nombre</label>
-              <input type="text" class="form-control" placeholder="Nombre completo" th:field="*{nombre}" required>
+              <label class="form-label fw-semibold">Nombre completo</label>
+              <input type="text" class="form-control" placeholder="Nombre del usuario" th:field="*{nombre}" required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Correo</label>
-              <input type="email" class="form-control" placeholder="ej. usuario@correo.com" th:field="*{correo}" required>
+              <label class="form-label fw-semibold">Correo</label>
+              <input type="email" class="form-control" placeholder="usuario@correo.com" th:field="*{correo}" required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Clave</label>
+              <label class="form-label fw-semibold">Clave</label>
               <input type="text" class="form-control" placeholder="******" th:field="*{clave}" required>
             </div>
 
-            <div class="d-flex flex-wrap gap-2">
-              <button type="submit" class="btn btn-primary">Guardar</button>
-              <a class="btn btn-secondary" th:href="@{/admin/usuarios}">Limpiar</a>
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/usuarios}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- 🔹 Tabla de Usuarios -->
+    <!-- 🔹 Tabla -->
     <div class="col-md-8">
-      <div class="card shadow-sm">
+      <div class="card border-0 shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Usuarios Registrados</h5>
-            <input type="text" class="form-control w-50" placeholder="Buscar por usuario...">
+            <input type="text" id="buscadorUsuarios" class="form-control form-control-sm"
+                   style="width: 250px;" placeholder="🔍 Buscar usuario...">
           </div>
 
           <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
+            <table class="table table-hover align-middle table-bordered" id="tablaUsuarios" style="min-width: 1000px;">
               <thead class="table-light">
                 <tr>
                   <th>ID</th>
@@ -81,35 +86,54 @@
               </thead>
               <tbody>
                 <tr th:each="u : ${usuarios}">
-                  <td th:text="${u.id}">1</td>
-                  <td th:text="${u.usuario}">Laura2u24</td>
-                  <td th:text="${u.nombre}">Laura Castillo</td>
-                  <td th:text="${u.correo}">laucast@gmail.com</td>
-                  <td th:text="${u.clave}">AlaoCas</td>
+                  <td th:text="${u.id}"></td>
+                  <td th:text="${u.usuario}"></td>
+                  <td th:text="${u.nombre}"></td>
+                  <td th:text="${u.correo}"></td>
+                  <td th:text="${u.clave}"></td>
                   <td class="text-center">
-                    <a th:href="@{'/admin/usuarios/editar/' + ${u.id}}" class="btn btn-sm btn-outline-warning">
-                      <i class="fa-solid fa-pen-to-square"></i> Editar
-                    </a>
-                    <a th:href="@{'/admin/usuarios/eliminar/' + ${u.id}}" 
-                       class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('¿Deseas eliminar este usuario?');">
-                      <i class="fa-solid fa-trash"></i> Eliminar
-                    </a>
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/usuarios/editar/' + ${u.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/usuarios/eliminar/' + ${u.id}}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar este usuario?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 <tr th:if="${usuarios.isEmpty()}">
-                  <td colspan="6" class="text-center text-muted">No hay usuarios registrados</td>
+                  <td colspan="6" class="text-center text-muted py-3">No hay usuarios registrados</td>
                 </tr>
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_footer :: footer"></footer>
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<!-- 🔎 Buscador dinámico -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorUsuarios");
+  const filas = document.querySelectorAll("#tablaUsuarios tbody tr");
+
+  buscador.addEventListener("keyup", () => {
+    const texto = buscador.value.toLowerCase().trim();
+    filas.forEach(fila => {
+      const celdas = fila.querySelectorAll("td");
+      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+});
+</script>
+
 </body>
 </html>

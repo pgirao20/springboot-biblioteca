@@ -4,13 +4,16 @@
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
 
+<!-- ✅ Navbar -->
 <header th:replace="fragments/_header :: header(${active})"></header>
 
-<main class="container-fluid mt-5 pt-3" style="max-width: 1400px;">
+<main class="container-fluid mt-4" style="max-width: 1500px;">
+
+
 
   <div class="row">
-    <!-- Formulario -->
-    <div class="col-lg-4 mb-4">
+    <!-- 🔹 Formulario -->
+    <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <h5 class="card-title mb-3" th:text="${nuevoEstudiante.id == null} ? 'Registrar Estudiante' : 'Editar Estudiante'"></h5>
@@ -41,7 +44,7 @@
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Teléfono</label>
-              <input type="tel" class="form-control" th:field="*{telefono}" maxlength="9" required>
+              <input type="tel" class="form-control" th:field="*{telefono}" maxlength="9" placeholder="999999999" required>
             </div>
 
             <div class="mb-3">
@@ -57,6 +60,7 @@
                   <option th:each="g : ${grados}" th:value="${g}" th:text="${g}"></option>
                 </select>
               </div>
+
               <div class="col-md-6 mb-3">
                 <label class="form-label fw-semibold">Sección</label>
                 <select class="form-select" th:field="*{seccion}" required>
@@ -79,18 +83,18 @@
       </div>
     </div>
 
-    <!-- Tabla -->
-    <div class="col-lg-8">
+    <!-- 🔹 Tabla -->
+    <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Estudiantes Registrados</h5>
-            <input type="text" id="buscador" class="form-control form-control-sm"
+            <input type="text" id="buscadorEstudiantes" class="form-control form-control-sm"
                    style="width: 250px;" placeholder="🔍 Buscar estudiante...">
           </div>
 
           <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaEstudiantes" style="min-width: 1200px;">
+            <table class="table table-hover align-middle table-bordered" id="tablaEstudiantes" style="min-width: 1300px;">
               <thead class="table-light">
                 <tr>
                   <th>ID</th>
@@ -135,7 +139,6 @@
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
@@ -144,10 +147,10 @@
 
 <footer th:replace="fragments/_header :: footer"></footer>
 
-<!-- 🔎 Filtro de búsqueda instantáneo -->
+<!-- 🔎 Buscador dinámico -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const buscador = document.getElementById("buscador");
+  const buscador = document.getElementById("buscadorEstudiantes");
   const filas = document.querySelectorAll("#tablaEstudiantes tbody tr");
 
   buscador.addEventListener("keyup", () => {
