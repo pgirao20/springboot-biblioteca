@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Configuración de Recordatorios', active='recordatorios'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<!-- ✅ Navbar con fragmento corregido -->
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container mt-4">
+
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" th:href="@{/admin/usuarios}">Usuarios</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" th:href="@{/admin/recordatorios}">Configuración</a>
+    </li>
+  </ul>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Control de Recordatorios</h5>
+      <p class="text-muted">
+        Define los tiempos de envío automático de notificaciones por correo institucional.
+      </p>
+
+      <form>
+        <div class="mb-3">
+          <label class="form-label">Se ha hecho el préstamo de un libro</label>
+          <select class="form-select w-auto">
+            <option>1 min</option>
+            <option>3 min</option>
+            <option>5 min</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Quedan pocos días para devolver</label>
+          <select class="form-select w-auto">
+            <option>4 días antes</option>
+            <option>3 días antes</option>
+            <option>2 días antes</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Quedan pocas horas para devolver</label>
+          <select class="form-select w-auto">
+            <option>1h antes</option>
+            <option>2h antes</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">La fecha ya expiró</label>
+          <select class="form-select w-auto">
+            <option>24h después</option>
+            <option>48h después

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Gestión de Estudiantes', active='estudiantes'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-5 pt-3" style="max-width: 1400px;">
+
+  <div class="row">
+    <!-- Formulario -->
+    <div class="col-lg-4 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3" th:text="${nuevoEstudiante.id == null} ? 'Registrar Estudiante' : 'Editar Estudiante'"></h5>
+
+          <form th:action="@{/admin/estudiantes/guardar}" method="post" th:object="${nuevoEstudiante}">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">DNI</label>
+              <input type="text" class="form-control" th:field="*{dni}" placeholder="Ingrese DNI" maxlength="8" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Código</label>
+              <input type="text" class="form-control" th:field="*{codigo}" placeholder="Ej: 2024001" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Nombres</label>
+                <input type="text" class="form-control" th:field="*{nombres}" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Apellidos</label>
+                <input type="text" class="form-control" th:field="*{apellidos}" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Teléfono</label>
+              <input type="tel" class="form-control" th:field="*{telefono}" maxlength="9" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Correo</label>
+              <input type="email" class="form-control" th:field="*{correo}" placeholder="correo@colegio.edu" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Año</label>
+                <select class="form-select" th:field="*{grado}" required>
+                  <option value="" disabled selected>Seleccione</option>
+                  <option th:each="g : ${grados}" th:value="${g}" th:text="${g}"></option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Sección</label>
+                <select class="form-select" th:field="*{seccion}" required>
+                  <option value="" disabled selected>Seleccione</option>
+                  <option th:each="s : ${secciones}" th:value="${s}" th:text="${s}"></option>
+                </select>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/estudiantes}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Estudiantes Registrados</h5>
+            <input type="text" id="buscador" class="form-control form-control-sm"
+                   style="width: 250px;" placeholder="🔍 Buscar estudiante...">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered" id="tablaEstudiantes" style="min-width: 1200px;">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>DNI</th>
+                  <th>Código</th>
+                  <th>Nombres</th>
+                  <th>Apellidos</th>
+                  <th>Teléfono</th>
+                  <th>Correo</th>
+                  <th>Año</th>
+                  <th>Sección</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="e : ${estudiantes}">
+                  <td th:text="${e.id}"></td>
+                  <td th:text="${e.dni}"></td>
+                  <td th:text="${e.codigo}"></td>
+                  <td th:text="${e.nombres}"></td>
+                  <td th:text="${e.apellidos}"></td>
+                  <td th:text="${e.telefono}"></td>
+                  <td th:text="${e.correo}"></td>
+                  <td th:text="${e.grado}"></td>
+                  <td th:text="${e.seccion}"></td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/estudiantes/editar/' + ${e.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/estudiantes/eliminar/' + ${e.id}}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar este estudiante?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${estudiantes.isEmpty()}">
+                  <td colspan="10" class="text-center text-muted py-3">No hay estudiantes registrados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<!-- 🔎 Filtro de búsqueda instantáneo -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscador");
+  const filas = document.querySelectorAll("#tablaEstudiantes tbody tr");
+
+  buscador.addEventListener("keyup", () => {
+    const texto = buscador.value.toLowerCase().trim();
+    filas.forEach(fila => {
+      const celdas = fila.querySelectorAll("td");
+      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>
