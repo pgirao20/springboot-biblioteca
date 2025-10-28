@@ -4,12 +4,12 @@
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
 
-<!-- ✅ Navbar -->
+<!-- Navbar -->
 <header th:replace="fragments/_header :: header(${active})"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1500px;">
 
-  <!-- 🔹 Tabs -->
+  <!--  Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link active" th:href="@{/admin/usuarios}">Usuarios</a>
@@ -20,7 +20,7 @@
   </ul>
 
   <div class="row">
-    <!-- 🔹 Formulario -->
+    <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <!-- 🔹 Tabla -->
+    <!--  Tabla -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -118,7 +118,7 @@
 
 <footer th:replace="fragments/_header :: footer"></footer>
 
-<!-- 🔎 Buscador dinámico -->
+<!-- Buscador dinámico -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorUsuarios");

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Gestión de Libros', active='libros'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<!--  Navbar -->
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width: 1500px;">
+
+  <!-- Tabs principales -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/libros}">Registro</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/areas}">Áreas</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/autores}">Autores</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/editoriales}">Editoriales</a></li>
+  </ul>
+
+  <div class="row">
+    <!-- Formulario -->
+    <div class="col-md-4 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3" th:text="${nuevoLibro.id == null} ? 'Registrar Libro' : 'Editar Libro'"></h5>
+
+          <form th:action="@{/admin/libros/guardar}" method="post" th:object="${nuevoLibro}">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Título</label>
+              <input type="text" class="form-control" th:field="*{titulo}" placeholder="Ej: El Principito" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Autor</label>
+              <select class="form-select" th:field="*{autor}" required>
+                <option value="">Seleccione un autor</option>
+                <option th:each="a : ${autores}" th:value="${a.nombre}" th:text="${a.nombre}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Editorial</label>
+              <select class="form-select" th:field="*{editorial}" required>
+                <option value="">Seleccione una editorial</option>
+                <option th:each="e : ${editoriales}" th:value="${e.nombre}" th:text="${e.nombre}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Área</label>
+              <select class="form-select" th:field="*{area}" required>
+                <option value="">Seleccione un área</option>
+                <option th:each="a : ${areas}" th:value="${a.nombre}" th:text="${a.nombre}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Año</label>
+              <input type="number" class="form-control" th:field="*{anio}" min="1900" max="2100" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Stock</label>
+                <input type="number" class="form-control" th:field="*{stock}" placeholder="Cantidad disponible" min="0" required>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/libros}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Libros Registrados</h5>
+            <input type="text" id="buscadorLibros" class="form-control form-control-sm"
+                   style="width: 250px;" placeholder="🔍 Buscar libro...">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered" id="tablaLibros" style="min-width: 1300px;">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Título</th>
+                  <th>Autor</th>
+                  <th>Editorial</th>
+                  <th>Área</th>
+                  <th>Año</th>
+                  <th>Stock</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="l : ${libros}">
+                  <td th:text="${l.id}"></td>
+                  <td th:text="${l.titulo}"></td>
+                  <td th:text="${l.autor}"></td>
+                  <td th:text="${l.editorial}"></td>
+                  <td th:text="${l.area}"></td>
+                  <td th:text="${l.anio}"></td>
+                  <td th:text="${l.stock}"></td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/libros/editar/' + ${l.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/libros/eliminar/' + ${l.id}}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar este libro?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${libros.isEmpty()}">
+                  <td colspan="7" class="text-center text-muted py-3">No hay libros registrados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<!--  Buscador dinámico -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorLibros");
+  const filas = document.querySelectorAll("#tablaLibros tbody tr");
+
+  buscador.addEventListener("keyup", () => {
+    const texto = buscador.value.toLowerCase().trim();
+    filas.forEach(fila => {
+      const celdas = fila.querySelectorAll("td");
+      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>

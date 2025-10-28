@@ -1,4 +1,3 @@
-<!-- src/main/resources/templates/fragments/_header.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head th:fragment="head(title)">
@@ -71,17 +70,17 @@
 <header th:fragment="header(active)">
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container py-2">
-      <!-- 🔹 Logo -->
+      <!--  Logo -->
       <a class="navbar-brand" th:href="@{/admin/usuarios}">
-        <i class="fa-solid fa-book-open"></i> Sistema Biblioteca
+        <i class="fa-solid fa-book-open"></i> Biblioteca Admin
       </a>
 
-      <!-- 🔹 Toggle para móvil -->
+      <!-- Toggle para móvil -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- 🔹 Menú -->
+      <!--  Menú -->
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav align-items-center">
 
@@ -93,12 +92,19 @@
             </a>
           </li>
 
-
           <li class="nav-item">
             <a class="nav-link"
                th:classappend="${active} == 'estudiantes' ? 'active' : ''"
                th:href="@{/admin/estudiantes}">
               <i class="fa-solid fa-graduation-cap"></i> Estudiantes
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${active} == 'libros' ? 'active' : ''"
+               th:href="@{/admin/libros}">
+              <i class="fa-solid fa-book"></i> Libros
             </a>
           </li>
 
@@ -112,7 +118,7 @@
     </div>
   </nav>
 
-  <!-- 🔹 Espacio compensado para navbar fija -->
+  <!-- Espacio compensado para navbar fija -->
   <div style="height: 70px;"></div>
 </header>
 

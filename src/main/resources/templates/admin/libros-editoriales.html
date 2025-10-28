@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Gestión de Editoriales', active='libros'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width: 1400px;">
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros}">Registro</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/areas}">Áreas</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/autores}">Autores</a></li>
+    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/libros/editoriales}">Editoriales</a></li>
+  </ul>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3" th:text="${nuevaEditorial.id == null} ? 'Registrar Editorial' : 'Editar Editorial'"></h5>
+
+          <form th:action="@{/admin/libros/editoriales/guardar}" method="post" th:object="${nuevaEditorial}">
+            <input type="hidden" th:field="*{id}">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre de la Editorial</label>
+              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Santillana, Planeta, Norma" required>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary w-50"><i class="fa-solid fa-save"></i> Guardar</button>
+              <a th:href="@{/admin/libros/editoriales}" class="btn btn-light border w-50"><i class="fa-solid fa-rotate"></i> Limpiar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Editoriales Registradas</h5>
+            <input type="text" id="buscadorEditoriales" class="form-control form-control-sm"
+                   style="width: 250px;" placeholder="🔍 Buscar editorial...">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered" id="tablaEditoriales" style="min-width: 900px;">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="e : ${editoriales}">
+                  <td th:text="${e.id}"></td>
+                  <td th:text="${e.nombre}"></td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/libros/editoriales/editar/' + ${e.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/libros/editoriales/eliminar/' + ${e.id}}" class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar esta editorial?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${editoriales.isEmpty()}">
+                  <td colspan="3" class="text-center text-muted py-3">No hay editoriales registradas</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorEditoriales");
+  const filas = document.querySelectorAll("#tablaEditoriales tbody tr");
+  buscador.addEventListener("keyup", () => {
+    const texto = buscador.value.toLowerCase().trim();
+    filas.forEach(fila => {
+      const coincide = fila.textContent.toLowerCase().includes(texto);
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>
