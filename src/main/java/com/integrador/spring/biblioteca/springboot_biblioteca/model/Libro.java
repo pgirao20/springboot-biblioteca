@@ -25,6 +25,4 @@ public class Libro {
     @Column(nullable = false)
     private Integer anio;
        
-    @Column(nullable = false)
-    private Integer stock;
 }

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Gestión de Tablets', active='tablets'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width: 1500px;">
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/tablets}">Registro</a></li>
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
+  </ul>
+
+  <!-- Alerts -->
+  <div class="mb-3">
+    <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+    <div th:if="${warn}" class="alert alert-warning" th:text="${warn}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  </div>
+
+  <div class="row">
+    <!-- Formulario crear/editar -->
+    <div class="col-md-4 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3"
+              th:text="${nuevaTablet.id == null} ? 'Registrar Tablet' : 'Editar Tablet'"></h5>
+
+          <form th:action="@{/admin/tablets/guardar}" method="post" th:object="${nuevaTablet}">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Marca</label>
+              <select class="form-select" th:field="*{marca.id}" required>
+                <option value="" selected>Seleccione una marca</option>
+                <option th:each="m : ${marcas}"
+                        th:value="${m.id}"
+                        th:text="${m.nombre}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Modelo</label>
+              <input type="text" class="form-control" th:field="*{modelo}" placeholder="Ej: Galaxy Tab A" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">SN (Código de barras)</label>
+              <input type="text" class="form-control" th:field="*{sn}" placeholder="Número de serie" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Año de Adquisición</label>
+              <input type="number" class="form-control" th:field="*{anioAdquisicion}" min="2000" max="2100" required>
+            </div>
+
+            <!-- Estado visible solo en edición -->
+            <div class="mb-3" th:if="${nuevaTablet.id != null}">
+              <label class="form-label fw-semibold">Estado</label>
+              <select class="form-select" th:field="*{estado}" required>
+                <option th:value="'Disponible'">Disponible</option>
+                <option th:value="'Prestada'">Prestada</option>
+                <option th:value="'Mantenimiento'">Mantenimiento</option>
+                <option th:value="'Dañada'">Dañada</option>
+              </select>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/tablets}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lote por SN -->
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body">
+          <h6 class="card-title">Alta múltiple por SN</h6>
+          <form th:action="@{/admin/tablets/guardar-lote}" method="post">
+            <div class="mb-2">
+              <label class="form-label fw-semibold">Marca</label>
+              <select class="form-select" name="marcaId" required>
+                <option value="" selected>Seleccione una marca</option>
+                <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
+              </select>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-semibold">Modelo</label>
+              <input class="form-control" name="modelo" placeholder="Ej: Galaxy Tab A" required>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-semibold">Año de Adquisición</label>
+              <input class="form-control" type="number" name="anioAdquisicion" min="2000" max="2100" required>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-semibold">SNs (uno por línea)</label>
+              <textarea class="form-control" rows="5" name="sns" placeholder="SN001&#10;SN002&#10;SN003" th:text="${snLote}"></textarea>
+            </div>
+
+            <div class="d-grid mt-2">
+              <button class="btn btn-outline-primary" type="submit">
+                <i class="fa-solid fa-layer-group"></i> Agregar en lote
+              </button>
+            </div>
+          </form>
+          <small class="text-muted d-block mt-2">
+            Si algún SN ya existe, no se agregará y se mostrará un mensaje con los duplicados.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Tablets Registradas</h5>
+            <input type="text" id="buscadorTablets" class="form-control form-control-sm"
+                   style="width: 280px;" placeholder="🔍 Buscar...">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered" id="tablaTablets" style="min-width: 1200px;">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>SN</th>
+                  <th>Año</th>
+                  <th>Estado</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="t : ${tablets}">
+                  <td th:text="${t.id}"></td>
+                  <td th:text="${t.marca != null ? t.marca.nombre : '—'}"></td>
+                  <td th:text="${t.modelo}"></td>
+                  <td th:text="${t.sn}"></td>
+                  <td th:text="${t.anioAdquisicion}"></td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${t.estado}=='Disponible' ? ' bg-success' :
+                                          (${t.estado}=='Prestada' ? ' bg-warning text-dark' :
+                                          (${t.estado}=='Mantenimiento' ? ' bg-info text-dark' :
+                                          (${t.estado}=='Dañada' ? ' bg-danger' : ' bg-secondary'))) "
+                          th:text="${t.estado}"></span>
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/tablets/editar/' + ${t.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/tablets/eliminar/' + ${t.id}}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar esta tablet?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${tablets.isEmpty()}">
+                  <td colspan="7" class="text-center text-muted py-3">No hay tablets registradas</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<!-- Buscador -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorTablets");
+  const filas = document.querySelectorAll("#tablaTablets tbody tr");
+
+  buscador.addEventListener("keyup", () => {
+    const texto = buscador.value.toLowerCase().trim();
+    filas.forEach(fila => {
+      const celdas = fila.querySelectorAll("td");
+      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>

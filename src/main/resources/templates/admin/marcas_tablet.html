@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Marcas de Tablets', active='tablets'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width: 1200px;">
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets}">Registro</a></li>
+    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
+  </ul>
+
+  <!-- Alerts -->
+  <div class="mb-3">
+    <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3"
+              th:text="${nuevaMarca.id == null} ? 'Registrar Marca' : 'Editar Marca'"></h5>
+
+          <form th:action="@{/admin/tablets/marcas/guardar}" method="post" th:object="${nuevaMarca}">
+            <input type="hidden" th:field="*{id}"/>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre</label>
+              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Samsung" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Descripción</label>
+              <input type="text" class="form-control" th:field="*{descripcion}" placeholder="Opcional">
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary w-50" type="submit">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/tablets/marcas}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla marcas -->
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Marcas Registradas</h5>
+            <input type="text" id="buscadorMarcas" class="form-control form-control-sm"
+                   style="width: 280px;" placeholder="🔍 Buscar...">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle table-bordered" id="tablaMarcas">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="m : ${marcas}">
+                  <td th:text="${m.id}"></td>
+                  <td th:text="${m.nombre}"></td>
+                  <td th:text="${m.descripcion}"></td>
+                  <td class="text-center">
+                    <div class="btn-group">
+                      <a th:href="@{'/admin/tablets/marcas/editar/' + ${m.id}}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a th:href="@{'/admin/tablets/marcas/eliminar/' + ${m.id}}"
+                         class="btn btn-sm btn-outline-danger"
+                         onclick="return confirm('¿Eliminar esta marca?');">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${marcas.isEmpty()}">
+                  <td colspan="4" class="text-center text-muted py-3">No hay marcas</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorMarcas");
+  const filas = document.querySelectorAll("#tablaMarcas tbody tr");
+  buscador.addEventListener("keyup", () => {
+    const t = buscador.value.toLowerCase().trim();
+    filas.forEach(f => {
+      const celdas = f.querySelectorAll("td");
+      const ok = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(t));
+      f.style.display = ok ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>
