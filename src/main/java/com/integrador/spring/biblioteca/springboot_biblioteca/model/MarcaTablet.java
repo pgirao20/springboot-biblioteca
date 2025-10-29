@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "marca_tablet", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_marca_nombre", columnNames = {"nombre"})
-})
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Table(name = "marca_tablet")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class MarcaTablet {
 
@@ -16,9 +15,10 @@ public class MarcaTablet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, unique = true, length = 100)
     private String nombre;
 
-    @Column(length = 120)
-    private String descripcion;
+    @Builder.Default
+    @Column(nullable = false, length = 30)
+    private String estado = "Disponible";
 }

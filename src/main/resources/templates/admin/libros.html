@@ -4,12 +4,11 @@
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
 
-<!--  Navbar -->
 <header th:replace="fragments/_header :: header(${active})"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1500px;">
 
-  <!-- Tabs principales -->
+  <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item"><a class="nav-link active" th:href="@{/admin/libros}">Registro</a></li>
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/areas}">Áreas</a></li>
@@ -17,15 +16,21 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/editoriales}">Editoriales</a></li>
   </ul>
 
+  <!-- Mensajes -->
+  <div th:if="${mensaje}" class="alert alert-info text-center fw-semibold" th:text="${mensaje}"></div>
+  <div th:if="${error}" class="alert alert-danger text-center fw-semibold" th:text="${error}"></div>
+  <div th:if="${ok}" class="alert alert-success text-center fw-semibold" th:text="${ok}"></div>
+
   <div class="row">
     <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title mb-3" th:text="${nuevoLibro.id == null} ? 'Registrar Libro' : 'Editar Libro'"></h5>
+          <h5 class="card-title mb-3"
+              th:text="${nuevoLibro.id == null} ? 'Registrar / Alta Múltiple de Libros' : 'Editar Libro'"></h5>
 
           <form th:action="@{/admin/libros/guardar}" method="post" th:object="${nuevoLibro}">
-            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{id}"/>
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Título</label>
@@ -33,41 +38,53 @@
             </div>
 
             <div class="mb-3">
+              <label class="form-label fw-semibold">Año</label>
+              <input type="number" class="form-control" th:field="*{anio}" min="1900" max="2100" placeholder="Ej: 2020" required>
+            </div>
+
+            <div class="mb-3">
               <label class="form-label fw-semibold">Autor</label>
-              <select class="form-select" th:field="*{autor}" required>
-                <option value="">Seleccione un autor</option>
-                <option th:each="a : ${autores}" th:value="${a.nombre}" th:text="${a.nombre}"></option>
+              <select class="form-select" th:field="*{autor.id}" required>
+                <option value="">Seleccione autor</option>
+                <option th:each="a : ${autores}" th:value="${a.id}" th:text="${a.nombre}"></option>
               </select>
             </div>
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Editorial</label>
-              <select class="form-select" th:field="*{editorial}" required>
-                <option value="">Seleccione una editorial</option>
-                <option th:each="e : ${editoriales}" th:value="${e.nombre}" th:text="${e.nombre}"></option>
+              <select class="form-select" th:field="*{editorial.id}" required>
+                <option value="">Seleccione editorial</option>
+                <option th:each="e : ${editoriales}" th:value="${e.id}" th:text="${e.nombre}"></option>
               </select>
             </div>
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Área</label>
-              <select class="form-select" th:field="*{area}" required>
-                <option value="">Seleccione un área</option>
-                <option th:each="a : ${areas}" th:value="${a.nombre}" th:text="${a.nombre}"></option>
+              <select class="form-select" th:field="*{area.id}" required>
+                <option value="">Seleccione área</option>
+                <option th:each="ar : ${areas}" th:value="${ar.id}" th:text="${ar.nombre}"></option>
               </select>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Año</label>
-              <input type="number" class="form-control" th:field="*{anio}" min="1900" max="2100" required>
+            <!-- Campo SN dinámico -->
+            <div th:if="${nuevoLibro.id == null}" class="mb-3">
+              <label class="form-label fw-semibold">Alta múltiple de SNs</label>
+              <textarea name="snMultiple" class="form-control" rows="4"
+                        placeholder="SN001&#10;SN002&#10;SN003"></textarea>
+              <small class="text-muted">Ingrese uno o varios números de serie, uno por línea.</small>
             </div>
-            
 
+            <div th:if="${nuevoLibro.id != null}" class="mb-3">
+              <label class="form-label fw-semibold">SN (Número de Serie)</label>
+              <input type="text" class="form-control" th:field="*{sn}" required>
+              <small class="text-muted">El número de serie debe ser único. Si ya existe, se mostrará un aviso.</small>
+            </div>
 
             <div class="d-flex gap-2 mt-3">
               <button type="submit" class="btn btn-primary w-50">
                 <i class="fa-solid fa-save"></i> Guardar
               </button>
-              <a th:href="@{/admin/libros}" class="btn btn-light border w-50">
+              <a th:href="@{/admin/libros/limpiar}" class="btn btn-light border w-50">
                 <i class="fa-solid fa-rotate"></i> Limpiar
               </a>
             </div>
@@ -83,11 +100,11 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Libros Registrados</h5>
             <input type="text" id="buscadorLibros" class="form-control form-control-sm"
-                   style="width: 250px;" placeholder="🔍 Buscar libro...">
+                   style="width: 280px;" placeholder="🔍 Buscar...">
           </div>
 
           <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaLibros" style="min-width: 1300px;">
+            <table class="table table-hover align-middle table-bordered" id="tablaLibros" style="min-width: 1200px;">
               <thead class="table-light">
                 <tr>
                   <th>ID</th>
@@ -96,7 +113,7 @@
                   <th>Editorial</th>
                   <th>Área</th>
                   <th>Año</th>
-                  
+                  <th>SN</th>
                   <th class="text-center">Acciones</th>
                 </tr>
               </thead>
@@ -104,11 +121,11 @@
                 <tr th:each="l : ${libros}">
                   <td th:text="${l.id}"></td>
                   <td th:text="${l.titulo}"></td>
-                  <td th:text="${l.autor}"></td>
-                  <td th:text="${l.editorial}"></td>
-                  <td th:text="${l.area}"></td>
+                  <td th:text="${l.autor.nombre}"></td>
+                  <td th:text="${l.editorial.nombre}"></td>
+                  <td th:text="${l.area.nombre}"></td>
                   <td th:text="${l.anio}"></td>
-                  
+                  <td th:text="${l.sn}"></td>
                   <td class="text-center">
                     <div class="btn-group">
                       <a th:href="@{'/admin/libros/editar/' + ${l.id}}" class="btn btn-sm btn-outline-warning">
@@ -123,7 +140,7 @@
                   </td>
                 </tr>
                 <tr th:if="${libros.isEmpty()}">
-                  <td colspan="7" class="text-center text-muted py-3">No hay libros registrados</td>
+                  <td colspan="8" class="text-center text-muted py-3">No hay libros registrados</td>
                 </tr>
               </tbody>
             </table>
@@ -136,7 +153,7 @@
 
 <footer th:replace="fragments/_header :: footer"></footer>
 
-<!--  Buscador dinámico -->
+<!-- Buscador -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorLibros");

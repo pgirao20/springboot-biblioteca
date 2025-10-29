@@ -14,15 +14,22 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
   </ul>
 
-  <!-- Alerts -->
-  <div class="mb-3">
-    <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
-    <div th:if="${warn}" class="alert alert-warning" th:text="${warn}"></div>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  <!-- Alertas -->
+  <div th:if="${ok}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-circle-check"></i> <span th:text="${ok}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${warn}" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i> <span th:text="${warn}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-circle-xmark"></i> <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 
   <div class="row">
-    <!-- Formulario crear/editar -->
+    <!-- Formulario único -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -36,9 +43,7 @@
               <label class="form-label fw-semibold">Marca</label>
               <select class="form-select" th:field="*{marca.id}" required>
                 <option value="" selected>Seleccione una marca</option>
-                <option th:each="m : ${marcas}"
-                        th:value="${m.id}"
-                        th:text="${m.nombre}"></option>
+                <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
               </select>
             </div>
 
@@ -48,8 +53,15 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-semibold">SN (Código de barras)</label>
-              <input type="text" class="form-control" th:field="*{sn}" placeholder="Número de serie" required>
+              <label class="form-label fw-semibold">SN (Número de Serie)</label>
+              <input type="text" class="form-control" th:field="*{sn}" placeholder="Ej: TAB001234">
+              <small class="text-muted">Si ingresa múltiples SNs, deje este campo vacío.</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Alta múltiple de SNs</label>
+              <textarea class="form-control" name="snsMultiple" rows="3" placeholder="SN001&#10;SN002&#10;SN003"></textarea>
+              <small class="text-muted">Puede separar por líneas o comas.</small>
             </div>
 
             <div class="mb-3">
@@ -79,49 +91,9 @@
           </form>
         </div>
       </div>
-
-      <!-- Lote por SN -->
-      <div class="card border-0 shadow-sm mt-4">
-        <div class="card-body">
-          <h6 class="card-title">Alta múltiple por SN</h6>
-          <form th:action="@{/admin/tablets/guardar-lote}" method="post">
-            <div class="mb-2">
-              <label class="form-label fw-semibold">Marca</label>
-              <select class="form-select" name="marcaId" required>
-                <option value="" selected>Seleccione una marca</option>
-                <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
-              </select>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label fw-semibold">Modelo</label>
-              <input class="form-control" name="modelo" placeholder="Ej: Galaxy Tab A" required>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label fw-semibold">Año de Adquisición</label>
-              <input class="form-control" type="number" name="anioAdquisicion" min="2000" max="2100" required>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label fw-semibold">SNs (uno por línea)</label>
-              <textarea class="form-control" rows="5" name="sns" placeholder="SN001&#10;SN002&#10;SN003" th:text="${snLote}"></textarea>
-            </div>
-
-            <div class="d-grid mt-2">
-              <button class="btn btn-outline-primary" type="submit">
-                <i class="fa-solid fa-layer-group"></i> Agregar en lote
-              </button>
-            </div>
-          </form>
-          <small class="text-muted d-block mt-2">
-            Si algún SN ya existe, no se agregará y se mostrará un mensaje con los duplicados.
-          </small>
-        </div>
-      </div>
     </div>
 
-    <!-- Tabla -->
+    <!-- Tabla de Tablets -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -182,7 +154,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </main>
 

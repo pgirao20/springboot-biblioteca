@@ -3,26 +3,33 @@ package com.integrador.spring.biblioteca.springboot_biblioteca.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity @Table(name = "libros")
+@Entity
+@Table(name = "libros")
 @Data
 public class Libro {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 150)
     private String titulo;
 
-    // Guardamos el nombre tal como lo usa el template actual
-    @Column(nullable = false, length = 100)
-    private String autor;
+    @ManyToOne
+    @JoinColumn(name = "autor_id", nullable = false)
+    private Autor autor;
 
-    @Column(nullable = false, length = 100)
-    private String editorial;
+    @ManyToOne
+    @JoinColumn(name = "editorial_id", nullable = false)
+    private Editorial editorial;
 
-    @Column(nullable = false, length = 100)
-    private String area;
+    @ManyToOne
+    @JoinColumn(name = "area_id", nullable = false)
+    private Area area;
 
     @Column(nullable = false)
     private Integer anio;
-       
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String sn;
 }
