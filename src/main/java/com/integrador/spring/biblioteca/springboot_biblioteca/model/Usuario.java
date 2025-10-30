@@ -12,8 +12,16 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 50)
     private String usuario;
-    private String nombre;
-    private String correo;
+
+    @Column(nullable = false, length = 100)
     private String clave;
+
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
+    // 🔹 Nuevo campo rol
+    @Column(nullable = false, length = 20)
+    private String rol; // valores: "ADMIN" o "USER"
 }

@@ -1,52 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
-      th:with="title='Administración de Usuarios', active='usuarios'">
+      th:with="title='Gestión de Usuarios', active='usuarios'">
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
-
-<!-- Navbar -->
 <header th:replace="fragments/_header :: header(${active})"></header>
 
-<main class="container-fluid mt-4" style="max-width: 1500px;">
-
-  <!--  Tabs -->
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <a class="nav-link active" th:href="@{/admin/usuarios}">Usuarios</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" th:href="@{/admin/recordatorios}">Configuración</a>
-    </li>
-  </ul>
-
+<main class="container-fluid mt-4" style="max-width: 1400px;">
   <div class="row">
     <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title mb-3" th:text="${nuevoUsuario.id == null} ? 'Registrar Usuario' : 'Editar Usuario'"></h5>
+          <h5 class="card-title mb-3"
+              th:text="${nuevoUsuario.id == null} ? 'Registrar Usuario' : 'Editar Usuario'"></h5>
 
           <form th:action="@{/admin/usuarios/guardar}" method="post" th:object="${nuevoUsuario}">
-            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{id}"/>
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Usuario</label>
-              <input type="text" class="form-control" placeholder="ej. jmorales24" th:field="*{usuario}" required>
+              <input type="text" class="form-control" th:field="*{usuario}" placeholder="Ej: admin" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Contraseña</label>
+              <input type="password" class="form-control" th:field="*{clave}" placeholder="Ingrese contraseña" required>
+              <small class="text-muted">Se recomienda cambiarla periódicamente.</small>
             </div>
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre completo</label>
-              <input type="text" class="form-control" placeholder="Nombre del usuario" th:field="*{nombre}" required>
+              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Pablo Breña" required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-semibold">Correo</label>
-              <input type="email" class="form-control" placeholder="usuario@correo.com" th:field="*{correo}" required>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Clave</label>
-              <input type="text" class="form-control" placeholder="******" th:field="*{clave}" required>
+              <label class="form-label fw-semibold">Rol</label>
+              <select class="form-select" th:field="*{rol}" required>
+                <option value="" disabled selected>Seleccione rol</option>
+                <option value="ADMIN">Administrador</option>
+                <option value="USER">Usuario</option>
+              </select>
             </div>
 
             <div class="d-flex gap-2 mt-3">
@@ -62,14 +55,14 @@
       </div>
     </div>
 
-    <!--  Tabla -->
+    <!-- Tabla -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Usuarios Registrados</h5>
             <input type="text" id="buscadorUsuarios" class="form-control form-control-sm"
-                   style="width: 250px;" placeholder="🔍 Buscar usuario...">
+                   style="width: 280px;" placeholder="🔍 Buscar...">
           </div>
 
           <div class="table-responsive">
@@ -79,8 +72,7 @@
                   <th>ID</th>
                   <th>Usuario</th>
                   <th>Nombre</th>
-                  <th>Correo</th>
-                  <th>Clave</th>
+                  <th>Rol</th>
                   <th class="text-center">Acciones</th>
                 </tr>
               </thead>
@@ -89,8 +81,11 @@
                   <td th:text="${u.id}"></td>
                   <td th:text="${u.usuario}"></td>
                   <td th:text="${u.nombre}"></td>
-                  <td th:text="${u.correo}"></td>
-                  <td th:text="${u.clave}"></td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${u.rol == 'ADMIN'} ? ' bg-primary' : ' bg-secondary'"
+                          th:text="${u.rol == 'ADMIN' ? 'Administrador' : 'Usuario'}"></span>
+                  </td>
                   <td class="text-center">
                     <div class="btn-group">
                       <a th:href="@{'/admin/usuarios/editar/' + ${u.id}}" class="btn btn-sm btn-outline-warning">
@@ -105,7 +100,7 @@
                   </td>
                 </tr>
                 <tr th:if="${usuarios.isEmpty()}">
-                  <td colspan="6" class="text-center text-muted py-3">No hay usuarios registrados</td>
+                  <td colspan="5" class="text-center text-muted py-3">No hay usuarios registrados</td>
                 </tr>
               </tbody>
             </table>
@@ -118,22 +113,33 @@
 
 <footer th:replace="fragments/_header :: footer"></footer>
 
-<!-- Buscador dinámico -->
+<!-- Buscador -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorUsuarios");
   const filas = document.querySelectorAll("#tablaUsuarios tbody tr");
-
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
     filas.forEach(fila => {
-      const celdas = fila.querySelectorAll("td");
-      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      const coincide = Array.from(fila.querySelectorAll("td"))
+        .some(td => td.textContent.toLowerCase().includes(texto));
       fila.style.display = coincide ? "" : "none";
     });
   });
 });
 </script>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+const ok = /*[[${ok}]]*/ null;
+const warn = /*[[${warn}]]*/ null;
+const error = /*[[${error}]]*/ null;
+document.addEventListener("DOMContentLoaded", () => {
+  if (ok) Swal.fire({ icon: 'success', title: '¡Éxito!', text: ok, timer: 2500, showConfirmButton: false });
+  if (warn) Swal.fire({ icon: 'warning', title: 'Atención', text: warn, confirmButtonText: 'Entendido' });
+  if (error) Swal.fire({ icon: 'error', title: 'Error', text: error, confirmButtonColor: '#d33' });
+});
+</script>
 </body>
 </html>

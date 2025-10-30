@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/_header :: head('Inicio de Sesión')"></head>
+
+<body class="bg-light d-flex align-items-center" style="height: 100vh;">
+<main class="container d-flex justify-content-center">
+  <div class="card shadow-lg border-0" style="width: 400px;">
+    <div class="card-body p-4">
+      <h4 class="text-center mb-4 fw-bold text-primary">
+        <i class="fa-solid fa-book"></i> Biblioteca Magister
+      </h4>
+
+      <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Usuario</label>
+          <input type="text" name="usuario" class="form-control" placeholder="Ingrese su usuario" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Contraseña</label>
+          <input type="password" name="clave" class="form-control" placeholder="Ingrese su contraseña" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <small class="text-muted">© 2025 - Colegio Magister</small>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+const ok = /*[[${ok}]]*/ null;
+const error = /*[[${error}]]*/ null;
+document.addEventListener("DOMContentLoaded", () => {
+  if (ok) Swal.fire({ icon: 'success', title: '¡Éxito!', text: ok, timer: 1000, showConfirmButton: false,timerProgressBar: true});
+  if (error) Swal.fire({ icon: 'error', title: 'Error', text: error, confirmButtonColor: '#d33' });
+});
+</script>
+</body>
+</html>

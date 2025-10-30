@@ -2,38 +2,40 @@ package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Usuario;
 import com.integrador.spring.biblioteca.springboot_biblioteca.repository.UsuarioRepository;
-import com.integrador.spring.biblioteca.springboot_biblioteca.service.IUsuarioService;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioServiceImpl implements IUsuarioService {
+@RequiredArgsConstructor
+public class UsuarioServiceImpl implements UsuarioService {
 
-    private final UsuarioRepository repository;
-
-    public UsuarioServiceImpl(UsuarioRepository repository) {
-        this.repository = repository;
-    }
+    private final UsuarioRepository usuarioRepository;
 
     @Override
-    public List<Usuario> listar() {
-        return repository.findAll();
-    }
-
-    @Override
-    public void guardar(Usuario usuario) {
-        repository.save(usuario);
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAll();
     }
 
     @Override
     public Optional<Usuario> buscarPorId(Long id) {
-        return repository.findById(id);
+        return usuarioRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Usuario> buscarPorUsuario(String usuario) {
+        return usuarioRepository.findByUsuario(usuario);
+    }
+
+    @Override
+    public Usuario guardar(Usuario usuario) {
+        return usuarioRepository.save(usuario);
     }
 
     @Override
     public void eliminar(Long id) {
-        repository.deleteById(id);
+        usuarioRepository.deleteById(id);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.*;
 
@@ -23,12 +24,18 @@ public class LibroController {
     @Autowired private IEditorialService editorialService;
     @Autowired private IAreaService areaService;
 
-    /** Listar todos los libros */
+    // Listar todos los libros
     @GetMapping
-    public String listar(Model model,
+    public String listar(HttpSession session,
+                         Model model,
                          @ModelAttribute("ok") String ok,
                          @ModelAttribute("warn") String warn,
                          @ModelAttribute("error") String error) {
+
+        // Verificar sesión activa
+        if (session.getAttribute("usuarioLogeado") == null) {
+            return "redirect:/?error=Debe Loguear para acceder al sistema.";
+        }
 
         model.addAttribute("libros", libroService.listarTodos());
         model.addAttribute("autores", autorService.listar());
@@ -36,7 +43,6 @@ public class LibroController {
         model.addAttribute("areas", areaService.listar());
         model.addAttribute("nuevoLibro", new Libro());
 
-        // Reenvía mensajes flash si existen
         if (ok != null && !ok.isEmpty()) model.addAttribute("ok", ok);
         if (warn != null && !warn.isEmpty()) model.addAttribute("warn", warn);
         if (error != null && !error.isEmpty()) model.addAttribute("error", error);
@@ -44,15 +50,22 @@ public class LibroController {
         return "admin/libros";
     }
 
-    /** Limpiar formulario */
+    // Limpiar formulario 
     @GetMapping("/limpiar")
-    public String limpiar() {
+    public String limpiar(HttpSession session) {
+        if (session.getAttribute("usuarioLogeado") == null) {
+            return "redirect:/?error=Debe iniciar Login.";
+        }
         return "redirect:/admin/libros";
     }
 
-    /** Editar libro */
+    // Editar libro 
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
+    public String editar(HttpSession session, @PathVariable Long id, Model model) {
+        if (session.getAttribute("usuarioLogeado") == null) {
+            return "redirect:/?error=Debe iniciar Login.";
+        }
+
         model.addAttribute("nuevoLibro", libroService.buscarPorId(id).orElse(new Libro()));
         model.addAttribute("libros", libroService.listarTodos());
         model.addAttribute("autores", autorService.listar());
@@ -61,20 +74,28 @@ public class LibroController {
         return "admin/libros";
     }
 
-    /** Eliminar libro */
+    //Eliminar libro 
     @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public String eliminar(HttpSession session, @PathVariable Long id, RedirectAttributes redirectAttrs) {
+        if (session.getAttribute("usuarioLogeado") == null) {
+            return "redirect:/?error=Debe iniciar Login.";
+        }
+
         libroService.eliminar(id);
         redirectAttrs.addFlashAttribute("ok", "Libro eliminado correctamente.");
         return "redirect:/admin/libros";
     }
 
-    /** Guardar o actualizar */
+    // Guardar o actualizar
     @PostMapping("/guardar")
-    public String guardar(
-            @ModelAttribute("nuevoLibro") Libro libro,
-            @RequestParam(value = "snMultiple", required = false) String snMultiple,
-            RedirectAttributes redirectAttrs) {
+    public String guardar(HttpSession session,
+                          @ModelAttribute("nuevoLibro") Libro libro,
+                          @RequestParam(value = "snMultiple", required = false) String snMultiple,
+                          RedirectAttributes redirectAttrs) {
+
+        if (session.getAttribute("usuarioLogeado") == null) {
+            return "redirect:/?error=Debe iniciar Login.";
+        }
 
         try {
             // Alta múltiple
