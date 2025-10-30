@@ -14,19 +14,7 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
   </ul>
 
-  <!-- Alertas -->
-  <div th:if="${ok}" class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="fa-solid fa-circle-check"></i> <span th:text="${ok}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  <div th:if="${warn}" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <i class="fa-solid fa-triangle-exclamation"></i> <span th:text="${warn}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="fa-solid fa-circle-xmark"></i> <span th:text="${error}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
+
 
   <div class="row">
     <!-- Formulario único -->
@@ -174,6 +162,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+</script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+const ok = /*[[${ok}]]*/ null;
+const warn = /*[[${warn}]]*/ null;
+const error = /*[[${error}]]*/ null;
+document.addEventListener("DOMContentLoaded", () => {
+  if (ok) {
+    Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: ok,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  }
+
+  if (warn) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: warn,
+      showConfirmButton: true,
+      confirmButtonText: 'Entendido'
+    });
+  }
+
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error,
+      showConfirmButton: true,
+      confirmButtonColor: '#d33'
+    });
+  }
+});
+/* ]]> */
 </script>
 
 </body>

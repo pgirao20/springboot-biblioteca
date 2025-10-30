@@ -16,10 +16,8 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/editoriales}">Editoriales</a></li>
   </ul>
 
-  <!-- Mensajes -->
-  <div th:if="${mensaje}" class="alert alert-info text-center fw-semibold" th:text="${mensaje}"></div>
-  <div th:if="${error}" class="alert alert-danger text-center fw-semibold" th:text="${error}"></div>
-  <div th:if="${ok}" class="alert alert-success text-center fw-semibold" th:text="${ok}"></div>
+<!-- Mensajes flash -->
+
 
   <div class="row">
     <!-- Formulario -->
@@ -168,6 +166,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+</script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:inline="javascript">
+/* <![CDATA[ */
+const ok = /*[[${ok}]]*/ null;
+const warn = /*[[${warn}]]*/ null;
+const error = /*[[${error}]]*/ null;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (ok) {
+    Swal.fire({
+      icon: 'success',
+      title: '¡Éxito!',
+      text: ok,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  }
+
+  if (warn) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: warn,
+      showConfirmButton: true,
+      confirmButtonText: 'Entendido'
+    });
+  }
+
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error,
+      showConfirmButton: true,
+      confirmButtonColor: '#d33'
+    });
+  }
+});
+/* ]]> */
 </script>
 
 </body>
