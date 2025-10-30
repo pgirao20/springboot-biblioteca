@@ -2,38 +2,46 @@ package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
 import com.integrador.spring.biblioteca.springboot_biblioteca.repository.EstudianteRepository;
-import com.integrador.spring.biblioteca.springboot_biblioteca.service.IEstudianteService;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.EstudianteService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class EstudianteServiceImpl implements IEstudianteService {
+@RequiredArgsConstructor
+public class EstudianteServiceImpl implements EstudianteService {
 
-    private final EstudianteRepository repository;
-
-    public EstudianteServiceImpl(EstudianteRepository repository) {
-        this.repository = repository;
-    }
+    private final EstudianteRepository estudianteRepository;
 
     @Override
-    public List<Estudiante> listar() {
-        return repository.findAll();
-    }
-
-    @Override
-    public void guardar(Estudiante estudiante) {
-        repository.save(estudiante);
+    public List<Estudiante> listarTodos() {
+        return estudianteRepository.findAll();
     }
 
     @Override
     public Optional<Estudiante> buscarPorId(Long id) {
-        return repository.findById(id);
+        return estudianteRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Estudiante> buscarPorDni(String dni) {
+        return estudianteRepository.findByDni(dni);
+    }
+
+    @Override
+    public Optional<Estudiante> buscarPorCodigo(String codigo) {
+        return estudianteRepository.findByCodigo(codigo);
+    }
+
+    @Override
+    public Estudiante guardar(Estudiante estudiante) {
+        return estudianteRepository.save(estudiante);
     }
 
     @Override
     public void eliminar(Long id) {
-        repository.deleteById(id);
+        estudianteRepository.deleteById(id);
     }
 }
