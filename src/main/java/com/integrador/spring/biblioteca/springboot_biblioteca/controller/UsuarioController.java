@@ -28,7 +28,7 @@ public class UsuarioController {
             //  Validar sesión
             Object user = session.getAttribute("usuarioLogeado");
             if (user == null) {
-                return "redirect:/?error=Debe iniciar sesión para acceder al sistema.";
+                return "redirect:/?error=Debe iniciar Login para acceder al sistema.";
             }
 
             //  Solo ADMIN
@@ -83,7 +83,7 @@ public class UsuarioController {
                                 Model model) {
         // Validación de acceso
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar sesión.";
+            return "redirect:/?error=Debe iniciar Login.";
         }
         String rol = (String) session.getAttribute("rol");
         if (!"ADMIN".equalsIgnoreCase(rol)) {

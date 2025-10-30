@@ -21,7 +21,7 @@ public class TabletController {
     private final TabletService tabletService;
     private final MarcaTabletService marcaTabletService;
 
-    //  Mostrar página principal
+    // Mostrar página principal
     @GetMapping
     public String listarTablets(HttpSession session,
                                 Model model,
@@ -29,9 +29,8 @@ public class TabletController {
                                 @RequestParam(required = false) String warn,
                                 @RequestParam(required = false) String error) {
 
-        //  Verificar sesión activa
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe Loguear para acceder al sistema.";
+            return "redirect:/?error=Debe iniciar sesión para acceder al sistema.";
         }
 
         model.addAttribute("tablets", tabletService.listarTodos());
@@ -43,16 +42,15 @@ public class TabletController {
         return "admin/tablets";
     }
 
-    //  Guardar o actualizar
+    // Guardar o actualizar
     @PostMapping("/guardar")
     public String guardarTablet(HttpSession session,
                                 @ModelAttribute("nuevaTablet") Tablet base,
                                 @RequestParam(required = false, name = "snsMultiple") String snsMultiple,
                                 RedirectAttributes ra) {
 
-        // Verificar sesión activa
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar Login.";
+            return "redirect:/?error=Debe iniciar sesión.";
         }
 
         try {
@@ -74,7 +72,7 @@ public class TabletController {
                 existente.setSn(base.getSn().trim());
 
                 tabletService.guardar(existente);
-                ra.addAttribute("ok", "Tablet actualizada correctamente.");
+                ra.addAttribute("ok", "[EDITAR] Tablet actualizada correctamente.");
                 return "redirect:/admin/tablets";
             }
 
@@ -124,33 +122,31 @@ public class TabletController {
                 }
             }
 
-            // Mensajes
-            if (creadas > 0)
-                ra.addAttribute("ok", "Se registraron " + creadas + " tablet(s).");
+            // Mensajes dinámicos
+            if (creadas > 0) {
+                StringBuilder mensaje = new StringBuilder("[GUARDAR] Se agregaron " + creadas + " tablet(s).");
 
-            if (!duplicadas.isEmpty() || !invalidas.isEmpty()) {
+                if (!duplicadas.isEmpty()) {
+                    int max = Math.min(duplicadas.size(), 10);
+                    String dupPreview = String.join(", ", duplicadas.subList(0, max));
+                    String dupSufijo = duplicadas.size() > max ? " …(+ " + (duplicadas.size() - max) + " más)" : "";
+                    mensaje.append(" SNs duplicados: ").append(dupPreview).append(dupSufijo).append(".");
+                }
+
+                if (!invalidas.isEmpty()) {
+                    mensaje.append(" SNs inválidas/vacías: ").append(invalidas.size()).append(".");
+                }
+
+                ra.addAttribute("ok", mensaje.toString().trim());
+            } else if (!duplicadas.isEmpty()) {
                 int max = Math.min(duplicadas.size(), 10);
                 String dupPreview = String.join(", ", duplicadas.subList(0, max));
                 String dupSufijo = duplicadas.size() > max ? " …(+ " + (duplicadas.size() - max) + " más)" : "";
-
-                StringBuilder warn = new StringBuilder();
-                if (!duplicadas.isEmpty()) {
-                    warn.append("SN duplicadas (").append(duplicadas.size()).append("): ")
-                            .append(dupPreview).append(dupSufijo).append(". ");
-                }
-                if (!invalidas.isEmpty()) {
-                    warn.append("SN inválidas/vacías (").append(invalidas.size()).append(").");
-                }
-                ra.addAttribute("warn", warn.toString().trim());
-            }
-
-            if (creadas == 0) {
-                if (!duplicadas.isEmpty())
-                    ra.addAttribute("error", "No se registró ninguna tablet porque todas las SN estaban duplicadas.");
-                else if (!invalidas.isEmpty())
-                    ra.addAttribute("error", "No se registró ninguna tablet por SN inválidas o vacías.");
-                else
-                    ra.addAttribute("error", "No se registró ninguna tablet.");
+                ra.addAttribute("warn", "No se registró ninguna tablet. SNs duplicadas: " + dupPreview + dupSufijo + ".");
+            } else if (!invalidas.isEmpty()) {
+                ra.addAttribute("warn", "No se registró ninguna tablet por SNs inválidas o vacías (" + invalidas.size() + ").");
+            } else {
+                ra.addAttribute("error", "No se registró ninguna tablet.");
             }
 
             return "redirect:/admin/tablets";
@@ -162,15 +158,14 @@ public class TabletController {
         }
     }
 
-    //  Editar
+    // Editar
     @GetMapping("/editar/{id}")
     public String editarTablet(HttpSession session,
                                @PathVariable Long id,
                                Model model) {
 
-        //  Verificar sesión
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar Login.";
+            return "redirect:/?error=Debe iniciar sesión.";
         }
 
         Tablet tablet = tabletService.buscarPorId(id)
@@ -182,20 +177,19 @@ public class TabletController {
         return "admin/tablets";
     }
 
-    //  Eliminar
+    // Eliminar
     @GetMapping("/eliminar/{id}")
     public String eliminarTablet(HttpSession session,
                                  @PathVariable Long id,
                                  RedirectAttributes ra) {
 
-        //  Verificar sesión
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar Login.";
+            return "redirect:/?error=Debe iniciar sesión.";
         }
 
         try {
             tabletService.eliminar(id);
-            ra.addAttribute("ok", "Tablet eliminada correctamente.");
+            ra.addAttribute("ok", "[ELIMINAR] Tablet eliminada correctamente.");
         } catch (Exception e) {
             ra.addAttribute("error", "Error al eliminar tablet.");
         }

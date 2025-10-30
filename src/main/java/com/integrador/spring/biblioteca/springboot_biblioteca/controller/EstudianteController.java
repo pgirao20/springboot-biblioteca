@@ -47,75 +47,80 @@ public class EstudianteController {
     }
 
     @PostMapping("/guardar")
-    public String guardar(HttpSession session,
-                          @ModelAttribute("nuevoEstudiante") Estudiante base,
-                          RedirectAttributes ra) {
+public String guardar(HttpSession session,
+                      @ModelAttribute("nuevoEstudiante") Estudiante base,
+                      RedirectAttributes ra) {
 
-        if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar Login.";
-        }
-
-        try {
-            if (base.getId() != null) {
-                Estudiante actual = estudianteService.buscarPorId(base.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
-
-                if (!base.getDni().equals(actual.getDni()) &&
-                        estudianteService.buscarPorDni(base.getDni()).isPresent()) {
-                    ra.addAttribute("error", "El DNI ya está registrado en otro estudiante.");
-                    return "redirect:/admin/estudiantes/editar/" + base.getId();
-                }
-
-                if (!base.getCodigo().equals(actual.getCodigo()) &&
-                        estudianteService.buscarPorCodigo(base.getCodigo()).isPresent()) {
-                    ra.addAttribute("error", "El código ya está registrado en otro estudiante.");
-                    return "redirect:/admin/estudiantes/editar/" + base.getId();
-                }
-
-                actual.setDni(base.getDni());
-                actual.setCodigo(base.getCodigo());
-                actual.setNombres(base.getNombres());
-                actual.setApellidos(base.getApellidos());
-                actual.setTelefono(base.getTelefono());
-                actual.setCorreo(base.getCorreo());
-                actual.setGrado(base.getGrado());
-                actual.setSeccion(base.getSeccion());
-
-                estudianteService.guardar(actual);
-                ra.addAttribute("ok", "Estudiante actualizado correctamente.");
-                return "redirect:/admin/estudiantes";
-            }
-
-            if (base.getDni() == null || base.getDni().trim().isEmpty() ||
-                base.getCodigo() == null || base.getCodigo().trim().isEmpty() ||
-                base.getNombres() == null || base.getNombres().trim().isEmpty() ||
-                base.getApellidos() == null || base.getApellidos().trim().isEmpty() ||
-                base.getGrado() == null || base.getGrado().trim().isEmpty() ||
-                base.getSeccion() == null || base.getSeccion().trim().isEmpty()) {
-
-                ra.addAttribute("error", "Complete todos los campos obligatorios.");
-                return "redirect:/admin/estudiantes";
-            }
-
-            if (estudianteService.buscarPorDni(base.getDni()).isPresent()) {
-                ra.addAttribute("error", "El DNI ya está registrado.");
-                return "redirect:/admin/estudiantes";
-            }
-            if (estudianteService.buscarPorCodigo(base.getCodigo()).isPresent()) {
-                ra.addAttribute("error", "El código ya está registrado.");
-                return "redirect:/admin/estudiantes";
-            }
-
-            estudianteService.guardar(base);
-            ra.addAttribute("ok", "Estudiante registrado correctamente.");
-            return "redirect:/admin/estudiantes";
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ra.addAttribute("error", "Error al registrar o actualizar estudiante.");
-            return "redirect:/admin/estudiantes";
-        }
+    if (session.getAttribute("usuarioLogeado") == null) {
+        return "redirect:/?error=Debe iniciar Login.";
     }
+
+    try {
+        // CASO: EDICIÓN
+        if (base.getId() != null) {
+            Estudiante actual = estudianteService.buscarPorId(base.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado."));
+
+            if (!base.getDni().equals(actual.getDni()) &&
+                    estudianteService.buscarPorDni(base.getDni()).isPresent()) {
+                ra.addAttribute("error", "El DNI '" + base.getDni() + "' ya está registrado en otro estudiante.");
+                return "redirect:/admin/estudiantes/editar/" + base.getId();
+            }
+
+            if (!base.getCodigo().equals(actual.getCodigo()) &&
+                    estudianteService.buscarPorCodigo(base.getCodigo()).isPresent()) {
+                ra.addAttribute("error", "El código '" + base.getCodigo() + "' ya está registrado en otro estudiante.");
+                return "redirect:/admin/estudiantes/editar/" + base.getId();
+            }
+
+            actual.setDni(base.getDni());
+            actual.setCodigo(base.getCodigo());
+            actual.setNombres(base.getNombres());
+            actual.setApellidos(base.getApellidos());
+            actual.setTelefono(base.getTelefono());
+            actual.setCorreo(base.getCorreo());
+            actual.setGrado(base.getGrado());
+            actual.setSeccion(base.getSeccion());
+
+            estudianteService.guardar(actual);
+            ra.addAttribute("ok", "[EDITAR] Estudiante actualizado correctamente.");
+            return "redirect:/admin/estudiantes";
+        }
+
+        // CASO: NUEVO REGISTRO
+        if (base.getDni() == null || base.getDni().trim().isEmpty() ||
+            base.getCodigo() == null || base.getCodigo().trim().isEmpty() ||
+            base.getNombres() == null || base.getNombres().trim().isEmpty() ||
+            base.getApellidos() == null || base.getApellidos().trim().isEmpty() ||
+            base.getGrado() == null || base.getGrado().trim().isEmpty() ||
+            base.getSeccion() == null || base.getSeccion().trim().isEmpty()) {
+
+            ra.addAttribute("error", "Complete todos los campos obligatorios.");
+            return "redirect:/admin/estudiantes";
+        }
+
+        // Validar duplicados
+        if (estudianteService.buscarPorDni(base.getDni()).isPresent()) {
+            ra.addAttribute("error", "El DNI '" + base.getDni() + "' ya está registrado en otro estudiante.");
+            return "redirect:/admin/estudiantes";
+        }
+        if (estudianteService.buscarPorCodigo(base.getCodigo()).isPresent()) {
+            ra.addAttribute("error", "El código '" + base.getCodigo() + "' ya está registrado en otro estudiante.");
+            return "redirect:/admin/estudiantes";
+        }
+
+        // Guardar nuevo estudiante
+        estudianteService.guardar(base);
+        ra.addAttribute("ok", "[GUARDAR] Estudiante registrado correctamente.");
+        return "redirect:/admin/estudiantes";
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        ra.addAttribute("error", "Error al registrar o actualizar estudiante.");
+        return "redirect:/admin/estudiantes";
+    }
+}
+
 
     @GetMapping("/editar/{id}")
     public String editar(HttpSession session, @PathVariable Long id, Model model) {

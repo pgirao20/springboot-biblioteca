@@ -163,7 +163,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 </script>
+
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -171,39 +173,63 @@ document.addEventListener("DOMContentLoaded", () => {
 const ok = /*[[${ok}]]*/ null;
 const warn = /*[[${warn}]]*/ null;
 const error = /*[[${error}]]*/ null;
+
 document.addEventListener("DOMContentLoaded", () => {
 
+  // --- Mensaje OK ---
   if (ok) {
-    Swal.fire({
-      icon: 'success',
-      title: '¡Éxito!',
-      text: ok,
-      showConfirmButton: false,
-      timer: 1000,
-      timerProgressBar: true
-    });
+    const textoLimpio = ok.replace(/\[.*?\]\s*/, ""); 
+    if (ok.startsWith("[GUARDAR]")) {
+      // Mostrar con botón de aceptar
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: textoLimpio,
+        showConfirmButton: true,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#2563eb'
+      });
+    } else {
+      // Mostrar automático (editar o eliminar)
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: textoLimpio,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true
+      });
+    }
   }
 
+  // --- Mensaje WARN (duplicados) ---
   if (warn) {
     Swal.fire({
       icon: 'warning',
       title: 'Atención',
       text: warn,
       showConfirmButton: true,
-      confirmButtonText: 'Entendido'
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#f59e0b'
     });
   }
 
+  // --- Mensaje ERROR ---
   if (error) {
     Swal.fire({
       icon: 'error',
       title: 'Error',
       text: error,
       showConfirmButton: true,
+      confirmButtonText: 'Aceptar',
       confirmButtonColor: '#d33'
     });
   }
+
 });
 </script>
+
+
+
 </body>
 </html>
