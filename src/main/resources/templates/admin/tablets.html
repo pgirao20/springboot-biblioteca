@@ -3,21 +3,16 @@
       th:with="title='Gestión de Tablets', active='tablets'">
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
-
 <header th:replace="fragments/_header :: header(${active})"></header>
-
 <main class="container-fluid mt-4" style="max-width: 1500px;">
-
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item"><a class="nav-link active" th:href="@{/admin/tablets}">Registro</a></li>
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
   </ul>
 
-
-
   <div class="row">
-    <!-- Formulario único -->
+    <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -27,37 +22,44 @@
           <form th:action="@{/admin/tablets/guardar}" method="post" th:object="${nuevaTablet}">
             <input type="hidden" th:field="*{id}"/>
 
+            <!-- Marca -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Marca</label>
               <select class="form-select" th:field="*{marca.id}" required>
-                <option value="" selected>Seleccione una marca</option>
+                <option value="">Seleccione una marca</option>
                 <option th:each="m : ${marcas}" th:value="${m.id}" th:text="${m.nombre}"></option>
               </select>
             </div>
 
+            <!-- Modelo -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Modelo</label>
               <input type="text" class="form-control" th:field="*{modelo}" placeholder="Ej: Galaxy Tab A" required>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">SN (Número de Serie)</label>
-              <input type="text" class="form-control" th:field="*{sn}" placeholder="Ej: TAB001234">
-              <small class="text-muted">Si ingresa múltiples SNs, deje este campo vacío.</small>
-            </div>
-
-            <div class="mb-3">
+            <!-- Alta múltiple (solo al registrar) -->
+            <div class="mb-3" th:if="${nuevaTablet.id == null}">
               <label class="form-label fw-semibold">Alta múltiple de SNs</label>
-              <textarea class="form-control" name="snsMultiple" rows="3" placeholder="SN001&#10;SN002&#10;SN003"></textarea>
-              <small class="text-muted">Puede separar por líneas o comas.</small>
+              <textarea class="form-control" name="snsMultiple" rows="3"
+                        placeholder="SN001&#10;SN002&#10;SN003"></textarea>
+              <small class="text-muted">Puede ingresar uno o varios SNs, separados por línea o coma.</small>
             </div>
 
+            <!-- SN individual (solo al editar) -->
+            <div class="mb-3" th:if="${nuevaTablet.id != null}">
+              <label class="form-label fw-semibold">SN (Número de Serie)</label>
+              <input type="text" class="form-control" th:field="*{sn}" placeholder="Ej: TAB001234" required>
+              <small class="text-muted">El número de serie debe ser único.</small>
+            </div>
+
+            <!-- Año -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Año de Adquisición</label>
-              <input type="number" class="form-control" th:field="*{anioAdquisicion}" min="2000" max="2100" required>
+              <input type="number" class="form-control" th:field="*{anioAdquisicion}"
+                     min="2000" max="2100" required>
             </div>
 
-            <!-- Estado visible solo en edición -->
+            <!-- Estado (solo en edición) -->
             <div class="mb-3" th:if="${nuevaTablet.id != null}">
               <label class="form-label fw-semibold">Estado</label>
               <select class="form-select" th:field="*{estado}" required>
@@ -68,6 +70,7 @@
               </select>
             </div>
 
+            <!-- Botones -->
             <div class="d-flex gap-2 mt-3">
               <button type="submit" class="btn btn-primary w-50">
                 <i class="fa-solid fa-save"></i> Guardar
@@ -138,7 +141,6 @@
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
@@ -152,17 +154,17 @@
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorTablets");
   const filas = document.querySelectorAll("#tablaTablets tbody tr");
-
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
     filas.forEach(fila => {
-      const celdas = fila.querySelectorAll("td");
-      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
+      const coincide = Array.from(fila.querySelectorAll("td"))
+        .some(td => td.textContent.toLowerCase().includes(texto));
       fila.style.display = coincide ? "" : "none";
     });
   });
 });
 </script>
+
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script th:inline="javascript">
@@ -170,13 +172,14 @@ const ok = /*[[${ok}]]*/ null;
 const warn = /*[[${warn}]]*/ null;
 const error = /*[[${error}]]*/ null;
 document.addEventListener("DOMContentLoaded", () => {
+
   if (ok) {
     Swal.fire({
       icon: 'success',
       title: '¡Éxito!',
       text: ok,
       showConfirmButton: false,
-      timer: 3000,
+      timer: 1000,
       timerProgressBar: true
     });
   }
@@ -201,8 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-/* ]]> */
 </script>
-
 </body>
 </html>

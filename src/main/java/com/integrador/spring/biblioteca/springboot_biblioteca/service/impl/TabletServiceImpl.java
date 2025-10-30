@@ -21,22 +21,18 @@ public class TabletServiceImpl implements TabletService {
     }
 
     @Override
-    public Tablet guardar(Tablet tablet) {
-        Optional<Tablet> existente = tabletRepository.findBySn(tablet.getSn());
-
-    
-        if (existente.isPresent() && !existente.get().getId().equals(tablet.getId())) {
-            throw new IllegalStateException("El SN " + tablet.getSn() + " ya existe.");
-        }
-
-   
-        return tabletRepository.save(tablet);
+    public Optional<Tablet> buscarPorId(Long id) {
+        return tabletRepository.findById(id);
     }
 
     @Override
-    public Tablet obtenerPorId(Long id) {
-        return tabletRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tablet no encontrada"));
+    public Optional<Tablet> buscarPorSn(String sn) {
+        return tabletRepository.findBySn(sn);
+    }
+
+    @Override
+    public Tablet guardar(Tablet tablet) {
+        return tabletRepository.save(tablet);
     }
 
     @Override
