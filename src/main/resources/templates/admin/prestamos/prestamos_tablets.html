@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Préstamo de Tablets', active='tablets'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width:1500px;">
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a></li>
+    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a></li>
+  </ul>
+
+  <div class="row">
+    
+    <div class="col-md-5">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Nuevo Préstamo de Tablet</h5>
+
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Código</label>
+              <input type="text" class="form-control" th:value="'TP' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}" readonly>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estudiante</label>
+              <input list="listaEstudiantes" class="form-control" placeholder="Buscar por código o nombre">
+              <datalist id="listaEstudiantes">
+                <option th:each="e : ${estudiantes}" th:value="${e}"></option>
+              </datalist>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tablet</label>
+              <textarea class="form-control" id="tablets" rows="2" placeholder="Ingresar una o varias tablets (por SN o modelo)"></textarea>
+              <small class="text-muted">Puedes ingresar varias tablets separadas por salto de línea.</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado inicial</label>
+              <select class="form-select">
+                <option th:each="es : ${estados}" th:text="${es}"></option>
+              </select>
+            </div>
+
+            <button type="button" class="btn btn-success w-100 mb-3">Agregar a la prelista</button>
+
+            <div class="table-responsive mb-3">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr><th>Tablet</th><th>Estado</th><th>Acción</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="3" class="text-center text-muted">Sin tablets agregadas</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fecha Préstamo</label>
+              <input type="date" class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fecha Devolución</label>
+              <input type="date" class="form-control">
+            </div>
+
+            <button class="btn btn-primary w-100">Confirmar Préstamo</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col-md-7">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Préstamos de Tablets Registrados</h5>
+            <input type="text" class="form-control w-50" placeholder="🔎 Buscar por estudiante o tablet">
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12" th:each="p : ${prestamos}">
+              <div class="card shadow-sm"
+                   th:classappend="${p.estado == 'Activo'} ? 'border-success' :
+                                   (${p.estado == 'Vencido'} ? 'border-danger' :
+                                   (${p.estado == 'Pendiente'} ? 'border-warning' : 'border-secondary'))">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="fw-bold mb-1" th:text="'👤 ' + ${p.estudiante} + ' (' + ${p.codigoEstudiante} + ')'"></h6>
+                    <small th:text="'Tablet: ' + ${p.item}"></small><br>
+                    <small th:text="'Préstamo: ' + ${p.fechaPrestamo} + ' | Devolución: ' + ${p.fechaDevolucion}"></small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge mb-2"
+                          th:classappend="${p.estado == 'Activo'} ? 'bg-success' :
+                                          (${p.estado == 'Vencido'} ? 'bg-danger' :
+                                          (${p.estado == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                          th:text="${p.estado}"></span><br>
+                    <button class="btn btn-sm btn-outline-warning me-1">✏️</button>
+                    <button class="btn btn-sm btn-outline-danger me-1">❌</button>
+                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalDevolucion">📥</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer th:replace="fragments/_footer :: footer"></footer>
+</body>
+</html>

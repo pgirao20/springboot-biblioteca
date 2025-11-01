@@ -133,6 +133,21 @@
               <i class="fa-solid fa-tablet-screen-button"></i> Tablets
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${active} == 'prestamos' ? 'active' : ''"
+               th:href="@{/admin/prestamos/libros}">
+              <i class="fa-solid fa-hand-holding"></i> Préstamos
+            </a>
+          </li>
+         
+          <li class="nav-item">
+            <a class="nav-link"
+              th:classappend="${active} == 'sanciones' ? 'active' : ''"
+              th:href="@{/admin/sanciones}">
+              <i class="fa-solid fa-triangle-exclamation"></i> Sanciones
+            </a>
+          </li>
 
           <li class="nav-item">
             <a class="nav-link" th:href="@{/logout}">
@@ -145,7 +160,7 @@
     </div>
   </nav>
 
-  <!-- Espacio compensado para navbar fija -->
+
   <div style="height: 70px;"></div>
 </header>
 

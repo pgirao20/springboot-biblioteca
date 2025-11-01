@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:with="title='Gestión de Sanciones', active='sanciones'">
+<head th:replace="fragments/_header :: head(${title})"></head>
+<body>
+<header th:replace="fragments/_header :: header(${active})"></header>
+
+<main class="container-fluid mt-4" style="max-width:1500px;">
+
+
+  <!-- Tabla de sanciones -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                  <input type="text" id="buscador" class="form-control form-control-sm"
+                   style="width: 280px;" placeholder="🔍 Buscar...">
+            </div>
+          <thead class="table-light">
+            
+            <tr>
+              <th>Código</th>
+              <th>Estudiante</th>
+              <th>Motivo</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Monto (S/)</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="s : ${sanciones}">
+              <td th:text="${s.codigo}"></td>
+              <td th:text="${s.estudiante} + ' (' + ${s.codigoEstudiante} + ')'"></td>
+              <td th:text="${s.motivo}"></td>
+              <td th:text="${s.fechaInicio}"></td>
+              <td th:text="${s.fechaFin}"></td>
+              <td th:text="${#numbers.formatDecimal(s.monto, 1, 2)}"></td>
+              <td>
+                <span class="badge"
+                      th:classappend="${s.estado == 'Pendiente'} ? 'bg-warning text-dark' :
+                                      (${s.estado == 'Pagado'} ? 'bg-success' : 'bg-secondary')"
+                      th:text="${s.estado}"></span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal"  
+                        data-bs-target="#modalEditarSancion" title="Editar">✏️</button>     
+                <button class="btn btn-sm btn-outline-danger" title="Eliminar">❌</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL EDITAR SANCION -->
+<div class="modal fade" id="modalEditarSancion" tabindex="-1" aria-labelledby="modalEditarSancionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fa-solid fa-circle-plus"></i> Editar Sanción</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Código Sanción</label>
+              <input type="text" class="form-control"
+                     th:value="'S' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Código Estudiante</label>
+              <input type="text" class="form-control" placeholder="Ej: 2024001">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Nombre Estudiante</label>
+              <input type="text" class="form-control" placeholder="Nombre del estudiante">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Motivo</label>
+              <textarea class="form-control" rows="2" placeholder="Motivo de la sanción"></textarea>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Fecha Inicio</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Fecha Fin</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Monto (S/)</label>
+              <input type="number" class="form-control" step="0.01" min="0">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Estado</label>
+              <select class="form-select">
+                <option th:each="e : ${estados}" th:text="${e}"></option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary">Guardar Sanción</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="fragments/_footer :: footer"></footer>
+</body>
+</html>
