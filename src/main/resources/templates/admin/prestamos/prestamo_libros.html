@@ -5,123 +5,345 @@
 <body>
 <header th:replace="fragments/_header :: header(${active})"></header>
 
-<main class="container-fluid mt-4" style="max-width:1500px;">
+<main class="container-fluid mt-4" style="max-width: 1500px;">
   <ul class="nav nav-tabs mb-4">
-    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a></li>
-    <li class="nav-item"><a class="nav-link" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a></li>
+    <li class="nav-item">
+      <a class="nav-link active" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a>
+    </li>
   </ul>
 
-  <div class="row">
+  <!-- Mensajes -->
+  <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+  <div class="row">
+    <!-- Columna izquierda: Nuevo préstamo + Prelista -->
     <div class="col-md-5">
       <div class="card shadow-sm mb-4">
         <div class="card-body">
           <h5 class="card-title mb-3">Nuevo Préstamo</h5>
 
-          <form>
-            <div class="mb-3">
-              <label class="form-label">Código</label>
-              <input type="text" class="form-control" th:value="'P' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}" readonly>
-            </div>
+          <form id="form-prestamo"
+                th:action="@{/admin/prestamos/libros/registrar}"
+                method="post">
 
+            <!-- Estudiante -->
             <div class="mb-3">
               <label class="form-label">Estudiante</label>
-              <input list="listaEstudiantes" class="form-control" placeholder="Buscar por código o nombre">
+              <input list="listaEstudiantes"
+                     class="form-control"
+                     id="estudianteInput"
+                     placeholder="Buscar por código o nombre"
+                     required>
               <datalist id="listaEstudiantes">
-                <option th:each="e : ${estudiantes}" th:value="${e}"></option>
+                <option th:each="e : ${estudiantes}"
+                        th:value="${e.codigo + ' - ' + e.nombres + ' ' + e.apellidos}">
               </datalist>
             </div>
 
+            <!-- Libro (SN) -->
             <div class="mb-3">
-              <label class="form-label">Libro</label>
-              <input list="listaLibros" class="form-control" placeholder="Buscar libro...">
+              <label class="form-label">Libro (SN - Título)</label>
+              <input list="listaLibros"
+                     class="form-control"
+                     id="libroInput"
+                     placeholder="Libro (SN - Título)">
               <datalist id="listaLibros">
-                <option th:each="l : ${libros}" th:value="${l}"></option>
+                <option th:each="l : ${libros}"
+                        th:value="${l.sn + ' - ' + l.titulo}"></option>
               </datalist>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Cantidad</label>
-              <input type="number" class="form-control" value="1" min="1">
-            </div>
-
+            <!-- Estado inicial en la prelista -->
             <div class="mb-3">
               <label class="form-label">Estado inicial</label>
-              <select class="form-select">
-                <option th:each="es : ${estados}" th:text="${es}"></option>
+              <select class="form-select" id="estadoInput">
+                <option th:each="es : ${estados}"
+                        th:value="${es}"
+                        th:text="${es}"></option>
               </select>
             </div>
 
-            <button type="button" class="btn btn-success w-100 mb-3">Agregar a la prelista</button>
+            <button type="button"
+                    class="btn btn-success w-100 mb-3"
+                    onclick="agregarLibroPrelista()">Agregar a la prelista</button>
 
+            <!-- Tabla Prelista -->
             <div class="table-responsive mb-3">
-              <table class="table table-sm table-bordered">
+              <table class="table table-sm table-bordered" id="tabla-prelista">
                 <thead class="table-light">
-                  <tr>
-                    <th>Código</th><th>Título</th><th>Cantidad</th><th>Estado</th><th>Acción</th>
-                  </tr>
+                <tr>
+                  <th>SN</th>
+                  <th>Título</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
                 </thead>
                 <tbody></tbody>
               </table>
             </div>
 
+            <!-- Fechas -->
             <div class="mb-3">
-              <label class="form-label">Fecha Préstamo</label>
-              <input type="date" class="form-control">
+              <label class="form-label">Fecha de Préstamo</label>
+              <input type="date"
+                     class="form-control"
+                     id="fechaPrestamo"
+                     name="fechaPrestamo"
+                     th:attr="min=${hoy}"
+                     required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Fecha Devolución</label>
-              <input type="date" class="form-control">
+              <label class="form-label">Fecha de Devolución</label>
+              <input type="date"
+                     class="form-control"
+                     id="fechaDevolucion"
+                     name="fechaDevolucion"
+                     required>
             </div>
 
-            <button class="btn btn-primary w-100">Confirmar Préstamo</button>
+            <!-- Hidden: código estudiante y lista SN -->
+            <input type="hidden" id="codigoEstudiante" name="codigoEstudiante">
+            <input type="hidden" id="sns" name="sns">
+
+            <button type="submit" class="btn btn-primary w-100">
+              Confirmar Préstamo
+            </button>
           </form>
         </div>
       </div>
     </div>
 
-
+    <!-- Columna derecha: Préstamos registrados (solo lectura como antes) -->
     <div class="col-md-7">
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">Préstamos Registrados</h5>
-            <input type="text" class="form-control w-50" placeholder="🔎 Buscar estudiante o libro">
+            <h5 class="card-title mb-0">📚 Préstamos Registrados</h5>
+            <input type="text" class="form-control w-50" id="buscadorLibros" placeholder="🔎 Buscar por estudiante o libro">
           </div>
 
-          <div class="row g-3">
+          <div class="row g-3" id="lista-prestamos-libros">
             <div class="col-12" th:each="p : ${prestamos}">
               <div class="card shadow-sm"
-                   th:classappend="${p.estado == 'Activo'} ? 'border-success' :
-                                   (${p.estado == 'Vencido'} ? 'border-danger' :
-                                   (${p.estado == 'Pendiente'} ? 'border-warning' : 'border-secondary'))">
+                   th:classappend="${p.estado} == 'ACTIVO' ? ' border-success' :
+                                   (${p.estado} == 'VENCIDO' ? ' border-danger' :
+                                   (${p.estado} == 'PENDIENTE' ? ' border-warning' : ' border-secondary'))">
                 <div class="card-body d-flex justify-content-between align-items-center">
                   <div>
-                    <h6 class="fw-bold mb-1" th:text="'👤 ' + ${p.estudiante} + ' (' + ${p.codigoEstudiante} + ')'"></h6>
-                    <small th:text="'Libro: ' + ${p.item}"></small><br>
-                    <small th:text="'Préstamo: ' + ${p.fechaPrestamo} + ' | Devolución: ' + ${p.fechaDevolucion}"></small>
+                    <h6 class="mb-1 fw-bold">
+                      <span th:text="${p.estudiante}"></span>
+                      (<span th:text="${p.codigoEstudiante}"></span>)
+                    </h6>
+                    <small>Libro:
+                      <span class="fw-semibold" th:text="${p.item}"></span>
+                    </small><br>
+                    <small>
+                      Préstamo:
+                      <span th:text="${p.fechaPrestamo}"></span> |
+                      Devolución:
+                      <span th:text="${p.fechaDevolucion}"></span>
+                    </small>
                   </div>
                   <div class="text-end">
                     <span class="badge mb-2"
-                          th:classappend="${p.estado == 'Activo'} ? 'bg-success' :
-                                          (${p.estado == 'Vencido'} ? 'bg-danger' :
-                                          (${p.estado == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                          th:classappend="${p.estado} == 'ACTIVO' ? ' bg-success' :
+                                          (${p.estado} == 'VENCIDO' ? ' bg-danger' :
+                                          (${p.estado} == 'PENDIENTE' ? ' bg-warning text-dark' : ' bg-secondary'))"
                           th:text="${p.estado}"></span><br>
-                    <button class="btn btn-sm btn-outline-warning me-1">✏️</button>
-                    <button class="btn btn-sm btn-outline-danger me-1">❌</button>
-                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalDevolucion">📥</button>
+                    <!-- Botones aún sin lógica de edición/borrado real -->
+                    <button class="btn btn-sm btn-outline-warning me-1" title="Editar">✏️</button>
+                    <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
+                      <input type="hidden" name="codigo" th:value="${p.codigo}">
+                      <input type="hidden" name="tipo" value="libros">
+                      <button type="submit"
+                              class="btn btn-sm btn-outline-danger me-1"
+                              onclick="return confirm('¿Seguro que deseas eliminar este préstamo?');">
+                        ❌
+                      </button>
+                    </form>
+                    <button class="btn btn-sm btn-outline-info" title="Confirmar Devolución">📥</button>
                   </div>
                 </div>
               </div>
             </div>
-          </div> 
+          </div> <!-- row -->
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_footer :: footer"></footer>
+<footer th:replace="fragments/_header :: footer"></footer>
+
+<script>
+  // Fecha devolución mínima = fecha préstamo + 1 día
+// Fecha devolución restringida: mínimo 1 día después, máximo 7 días después
+const fechaPrestamoInput = document.getElementById('fechaPrestamo');
+const fechaDevolucionInput = document.getElementById('fechaDevolucion');
+
+fechaPrestamoInput.addEventListener('change', () => {
+  const valor = fechaPrestamoInput.value;
+  if (!valor) return;
+
+  const fecha = new Date(valor + 'T00:00:00');
+
+  // Mínimo = préstamo + 1 día
+  const min = new Date(fecha);
+  min.setDate(min.getDate() + 1);
+
+  // Máximo = préstamo + 7 días
+  const max = new Date(fecha);
+  max.setDate(max.getDate() + 7);
+
+  // Convertir a YYYY-MM-DD
+  const toDateString = (d) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const minDev = toDateString(min);
+  const maxDev = toDateString(max);
+
+  // Aplicamos restricciones al input
+  fechaDevolucionInput.min = minDev;
+  fechaDevolucionInput.max = maxDev;
+
+  // Ajustar automáticamente si está fuera del rango
+  if (!fechaDevolucionInput.value || fechaDevolucionInput.value < minDev) {
+    fechaDevolucionInput.value = minDev;
+  }
+  else if (fechaDevolucionInput.value > maxDev) {
+    fechaDevolucionInput.value = maxDev;
+  }
+});
+
+
+  function agregarLibroPrelista() {
+    const libroStr = document.getElementById('libroInput').value.trim();
+    const estado = document.getElementById('estadoInput').value;
+
+    if (!libroStr) {
+      alert('Selecciona un libro (SN - título).');
+      return;
+    }
+
+    const partes = libroStr.split(' - ');
+    const sn = partes[0] || '';
+    const titulo = partes.slice(1).join(' - ') || libroStr;
+
+    if (!sn) {
+      alert('El valor debe iniciar con el SN del libro.');
+      return;
+    }
+
+    const tbody = document.querySelector('#tabla-prelista tbody');
+
+    // evitar SN duplicado en la prelista
+    for (const fila of tbody.rows) {
+      if (fila.cells[0].innerText === sn) {
+        alert('Este SN ya está en la prelista.');
+        return;
+      }
+    }
+
+    const fila = tbody.insertRow();
+    fila.innerHTML = `
+      <td>${sn}</td>
+      <td>${titulo}</td>
+      <td>${estado}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-warning me-1" onclick="editarFila(this)">Editar</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Quitar</button>
+      </td>
+    `;
+
+    document.getElementById('libroInput').value = '';
+  }
+
+  function editarFila(btn) {
+    const fila = btn.closest('tr');
+    const sn = fila.cells[0].innerText;
+    const titulo = fila.cells[1].innerText;
+    const estado = fila.cells[2].innerText;
+
+    document.getElementById('libroInput').value = sn + ' - ' + titulo;
+    document.getElementById('estadoInput').value = estado;
+
+    fila.remove();
+  }
+
+  document.getElementById('form-prestamo').addEventListener('submit', function (e) {
+    const tbody = document.querySelector('#tabla-prelista tbody');
+    if (tbody.rows.length === 0) {
+      e.preventDefault();
+      alert('Debes agregar al menos un libro a la prelista.');
+      return;
+    }
+
+    // extraer código de estudiante (antes del " - ")
+    const estStr = document.getElementById('estudianteInput').value.trim();
+    if (!estStr.includes(' - ')) {
+      e.preventDefault();
+      alert('Selecciona un estudiante válido de la lista.');
+      return;
+    }
+
+    const codigoEst = estStr.split(' - ')[0].trim();
+    document.getElementById('codigoEstudiante').value = codigoEst;
+
+    // serializar SNs como CSV
+    const sns = [];
+    for (const fila of tbody.rows) {
+      sns.push(fila.cells[0].innerText);
+    }
+    document.getElementById('sns').value = sns.join(',');
+
+    // validar fechas (devolución >= préstamo + 1 día)
+    const fp = fechaPrestamoInput.value;
+    const fd = fechaDevolucionInput.value;
+
+    if (!fp || !fd) {
+      e.preventDefault();
+      alert('Debes seleccionar ambas fechas.');
+      return;
+    }
+
+    const minDev = fechaDevolucionInput.min;
+    if (fd < minDev) {
+      e.preventDefault();
+      alert('La fecha de devolución debe ser al menos un día después de la fecha de préstamo.');
+    }
+  });
+</script>
+<script>
+// Filtro por código de estudiante o SN de tablet (o cualquier texto en la tarjeta)
+const inputBuscador = document.getElementById("buscadorLibros");
+const contenedorTarjetas = document.getElementById("lista-prestamos-libros");
+
+if (inputBuscador && contenedorTarjetas) {
+  inputBuscador.addEventListener("input", function () {
+    const filtro = this.value.toLowerCase().trim();
+    const columnas = contenedorTarjetas.querySelectorAll(".col-12");
+
+    columnas.forEach(col => {
+      const texto = col.innerText.toLowerCase();
+      // Si el filtro está vacío o el texto de la tarjeta contiene el filtro → mostrar
+      if (!filtro || texto.includes(filtro)) {
+        col.style.display = "";
+      } else {
+        col.style.display = "none";
+      }
+    });
+  });
+}
+</script>
+
 </body>
 </html>

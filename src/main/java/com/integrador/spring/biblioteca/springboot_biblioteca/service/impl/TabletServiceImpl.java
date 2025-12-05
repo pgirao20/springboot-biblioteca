@@ -39,4 +39,9 @@ public class TabletServiceImpl implements TabletService {
     public void eliminar(Long id) {
         tabletRepository.deleteById(id);
     }
+
+        @Override
+    public List<Tablet> listarDisponibles() {
+        return tabletRepository.findByEstado("DISPONIBLE");
+    }
 }

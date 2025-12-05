@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
-      th:with="title='Préstamo de Tablets', active='tablets'">
+      th:with="title='Préstamo de Tablets', active='prestamos'">
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
 <header th:replace="fragments/_header :: header(${active})"></header>
@@ -10,63 +10,126 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a></li>
     <li class="nav-item"><a class="nav-link active" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a></li>
   </ul>
-
+  <!-- Mensajes -->
+  <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
   <div class="row">
     
+    <!-- =======================================================
+         COLUMNA IZQUIERDA: NUEVO PRÉSTAMO DE TABLET
+    ======================================================== -->
     <div class="col-md-5">
       <div class="card shadow-sm mb-4">
         <div class="card-body">
           <h5 class="card-title mb-3">Nuevo Préstamo de Tablet</h5>
 
-          <form>
-            <div class="mb-3">
-              <label class="form-label">Código</label>
-              <input type="text" class="form-control" th:value="'TP' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}" readonly>
-            </div>
+          <form id="form-tablets"
+            th:action="@{/admin/prestamos/tablets/registrar}"
+            method="post">
 
+
+            <!-- ============================
+                 Estudiante
+            ============================= -->
             <div class="mb-3">
               <label class="form-label">Estudiante</label>
-              <input list="listaEstudiantes" class="form-control" placeholder="Buscar por código o nombre">
+              <input list="listaEstudiantes"
+                     class="form-control"
+                     id="estudianteInput"
+                     placeholder="Buscar por código o nombre"
+                     required>
+
               <datalist id="listaEstudiantes">
-                <option th:each="e : ${estudiantes}" th:value="${e}"></option>
+                <option th:each="e : ${estudiantes}"
+                        th:value="${e.codigo + ' - ' + e.nombres + ' ' + e.apellidos}">
+                </option>
               </datalist>
             </div>
 
+            <!-- ============================
+                 Tablet (input list)
+            ============================= -->
             <div class="mb-3">
-              <label class="form-label">Tablet</label>
-              <textarea class="form-control" id="tablets" rows="2" placeholder="Ingresar una o varias tablets (por SN o modelo)"></textarea>
-              <small class="text-muted">Puedes ingresar varias tablets separadas por salto de línea.</small>
+              <label class="form-label">Tablet (SN - Marca Modelo)</label>
+              <input list="listaTablets"
+                     class="form-control"
+                     id="tabletInput"
+                     placeholder="Seleccionar tablet por SN"
+                     >
+
+              <datalist id="listaTablets">
+                <option th:each="t : ${tablets}"
+                        th:value="${t.sn + ' - ' + t.marca + ' ' + t.modelo}">
+                </option>
+              </datalist>
+
+              <small class="text-muted">Solo se mostrarán tablets disponibles.</small>
             </div>
 
+            <!-- ============================
+                 Estado inicial en la prelista
+            ============================= -->
             <div class="mb-3">
               <label class="form-label">Estado inicial</label>
-              <select class="form-select">
-                <option th:each="es : ${estados}" th:text="${es}"></option>
+              <select class="form-select" id="estadoInput">
+                <option th:each="es : ${estados}" th:value="${es}" th:text="${es}"></option>
               </select>
             </div>
 
-            <button type="button" class="btn btn-success w-100 mb-3">Agregar a la prelista</button>
+            <!-- ============================
+                 Botón agregar a prelista
+            ============================= -->
+            <button type="button"
+                    class="btn btn-success w-100 mb-3"
+                    onclick="agregarTabletPrelista()">
+              Agregar a la prelista
+            </button>
 
+            <!-- ============================
+                 Tabla PRELISTA
+            ============================= -->
             <div class="table-responsive mb-3">
-              <table class="table table-sm table-bordered">
+              <table class="table table-sm table-bordered" id="tabla-prelista">
                 <thead class="table-light">
-                  <tr><th>Tablet</th><th>Estado</th><th>Acción</th></tr>
+                <tr>
+                  <th>Tablet</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr><td colspan="3" class="text-center text-muted">Sin tablets agregadas</td></tr>
+                <tr>
+                  <td colspan="3" class="text-center text-muted">Sin tablets agregadas</td>
+                </tr>
                 </tbody>
               </table>
             </div>
 
+            <!-- ============================
+                 Fechas
+            ============================= -->
             <div class="mb-3">
               <label class="form-label">Fecha Préstamo</label>
-              <input type="date" class="form-control">
+              <input type="date"
+                     class="form-control"
+                     id="fechaPrestamo"
+                     name="fechaPrestamo"
+                     th:attr="min=${hoy}"
+                     required>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Fecha Devolución</label>
-              <input type="date" class="form-control">
+              <input type="date"
+                     class="form-control"
+                     id="fechaDevolucion"
+                     name="fechaDevolucion"
+                     required>
             </div>
+
+            <!-- Hidden: código estudiante y lista de SN -->
+            <input type="hidden" id="codigoEstudiante" name="codigoEstudiante">
+            <input type="hidden" id="sns" name="sns">
 
             <button class="btn btn-primary w-100">Confirmar Préstamo</button>
           </form>
@@ -74,47 +137,230 @@
       </div>
     </div>
 
-
+    <!-- =======================================================
+         COLUMNA DERECHA: PRÉSTAMOS REGISTRADOS
+    ======================================================== -->
     <div class="col-md-7">
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Préstamos de Tablets Registrados</h5>
-            <input type="text" class="form-control w-50" placeholder="🔎 Buscar por estudiante o tablet">
+            <input type="text" class="form-control w-50" id="buscadorTablets" placeholder="🔎 Buscar por estudiante o tablet">
           </div>
 
-          <div class="row g-3">
+          <div class="row g-3" id="lista-prestamos-tablets">
             <div class="col-12" th:each="p : ${prestamos}">
               <div class="card shadow-sm"
-                   th:classappend="${p.estado == 'Activo'} ? 'border-success' :
-                                   (${p.estado == 'Vencido'} ? 'border-danger' :
-                                   (${p.estado == 'Pendiente'} ? 'border-warning' : 'border-secondary'))">
+                th:classappend="${p.estado == 'Activo'} ? 'border-success' :
+                                (${p.estado == 'Vencido'} ? 'border-danger' :
+                                (${p.estado == 'Pendiente'} ? 'border-warning' : 'border-secondary'))">
                 <div class="card-body d-flex justify-content-between align-items-center">
+
                   <div>
-                    <h6 class="fw-bold mb-1" th:text="'👤 ' + ${p.estudiante} + ' (' + ${p.codigoEstudiante} + ')'"></h6>
+                    <h6 class="fw-bold mb-1"
+                        th:text="'👤 ' + ${p.estudiante} + ' (' + ${p.codigoEstudiante} + ')'"></h6>
                     <small th:text="'Tablet: ' + ${p.item}"></small><br>
                     <small th:text="'Préstamo: ' + ${p.fechaPrestamo} + ' | Devolución: ' + ${p.fechaDevolucion}"></small>
                   </div>
+
                   <div class="text-end">
                     <span class="badge mb-2"
                           th:classappend="${p.estado == 'Activo'} ? 'bg-success' :
                                           (${p.estado == 'Vencido'} ? 'bg-danger' :
                                           (${p.estado == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-secondary'))"
-                          th:text="${p.estado}"></span><br>
+                          th:text="${p.estado}">
+                    </span><br>
                     <button class="btn btn-sm btn-outline-warning me-1">✏️</button>
-                    <button class="btn btn-sm btn-outline-danger me-1">❌</button>
-                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalDevolucion">📥</button>
+                    <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
+                    <input type="hidden" name="codigo" th:value="${p.codigo}">
+                    <input type="hidden" name="tipo" value="tablets">
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger me-1"
+                            onclick="return confirm('¿Seguro que deseas eliminar este préstamo?');">
+                      ❌
+                    </button>
+                  </form>
+                    <button class="btn btn-sm btn-outline-info">📥</button>
                   </div>
+
                 </div>
               </div>
             </div>
-          </div> 
+          </div>
+          
         </div>
       </div>
     </div>
+
   </div>
 </main>
 
 <footer th:replace="fragments/_footer :: footer"></footer>
+
+
+<!-- =======================================================
+     JAVASCRIPT PARA MANEJO DE PRELISTA
+======================================================= -->
+<script>
+    // Fecha devolución mínima = fecha préstamo + 1 día
+// Fecha devolución restringida: mínimo 1 día después, máximo 7 días después
+const fechaPrestamoInput = document.getElementById('fechaPrestamo');
+const fechaDevolucionInput = document.getElementById('fechaDevolucion');
+
+fechaPrestamoInput.addEventListener('change', () => {
+  const valor = fechaPrestamoInput.value;
+  if (!valor) return;
+
+  const fecha = new Date(valor + 'T00:00:00');
+
+  // Mínimo = préstamo + 1 día
+  const min = new Date(fecha);
+  min.setDate(min.getDate() + 1);
+
+  // Máximo = préstamo + 7 días
+  const max = new Date(fecha);
+  max.setDate(max.getDate() + 7);
+
+  // Convertir a YYYY-MM-DD
+  const toDateString = (d) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const minDev = toDateString(min);
+  const maxDev = toDateString(max);
+
+  // Aplicamos restricciones al input
+  fechaDevolucionInput.min = minDev;
+  fechaDevolucionInput.max = maxDev;
+
+  // Ajustar automáticamente si está fuera del rango
+  if (!fechaDevolucionInput.value || fechaDevolucionInput.value < minDev) {
+    fechaDevolucionInput.value = minDev;
+  }
+  else if (fechaDevolucionInput.value > maxDev) {
+    fechaDevolucionInput.value = maxDev;
+  }
+});
+
+
+function agregarTabletPrelista() {
+  const input = document.getElementById("tabletInput").value.trim();
+  const estado = document.getElementById("estadoInput").value;
+  const tbody = document.querySelector("#tabla-prelista tbody");
+
+  if (!input || !input.includes(" - ")) {
+    alert("Selecciona una tablet válida de la lista.");
+    return;
+  }
+
+  const partes = input.split(" - ");
+  const sn = partes[0];
+  const modelo = partes.slice(1).join(" - ");
+
+  // borrar fila de "Sin tablets agregadas"
+  if (tbody.rows.length === 1 && tbody.rows[0].cells.length === 1) {
+    tbody.innerHTML = "";
+  }
+
+  // evitar duplicados
+  for (const fila of tbody.rows) {
+    if (fila.cells[0].innerText.startsWith(sn)) {
+      alert("Esta tablet ya está en la prelista.");
+      return;
+    }
+  }
+
+  const fila = tbody.insertRow();
+  fila.innerHTML = `
+      <td>${sn} - ${modelo}</td>
+      <td>${estado}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-warning me-1" onclick="editarFilaTablet(this)">Editar</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Quitar</button>
+      </td>
+  `;
+
+  document.getElementById("tabletInput").value = "";
+}
+
+function editarFilaTablet(btn) {
+  const fila = btn.closest("tr");
+  const valor = fila.cells[0].innerText;
+  const estado = fila.cells[1].innerText;
+
+  document.getElementById("tabletInput").value = valor;
+  document.getElementById("estadoInput").value = estado;
+
+  fila.remove();
+}
+
+// ✅ Manejar el submit del formulario: armar codigoEstudiante + sns
+document.getElementById("form-tablets").addEventListener("submit", function(e) {
+  const tbody = document.querySelector("#tabla-prelista tbody");
+
+  if (tbody.rows.length === 0 ||
+     (tbody.rows.length === 1 && tbody.rows[0].cells.length === 1)) {
+    e.preventDefault();
+    alert("Debes agregar al menos una tablet a la prelista.");
+    return;
+  }
+
+  // Estudiante: extraer código (antes de " - ")
+  const estStr = document.getElementById("estudianteInput").value.trim();
+  if (!estStr.includes(" - ")) {
+    e.preventDefault();
+    alert("Selecciona un estudiante válido de la lista.");
+    return;
+  }
+  const codEst = estStr.split(" - ")[0].trim();
+  document.getElementById("codigoEstudiante").value = codEst;
+
+  // Armar lista de SNs desde la prelista
+  const sns = [];
+  for (const fila of tbody.rows) {
+    const texto = fila.cells[0].innerText;      // "SNXXX - Marca Modelo"
+    const sn = texto.split(" - ")[0].trim();
+    sns.push(sn);
+  }
+  document.getElementById("sns").value = sns.join(",");
+
+  // Validación de fechas básica (igual que en libros si ya lo tienes allí)
+  const fp = document.getElementById("fechaPrestamo").value;
+  const fd = document.getElementById("fechaDevolucion").value;
+
+  if (!fp || !fd) {
+    e.preventDefault();
+    alert("Debes seleccionar ambas fechas.");
+    return;
+  }
+});
+</script>
+<script>
+// Filtro por código de estudiante o SN de tablet (o cualquier texto en la tarjeta)
+const inputBuscador = document.getElementById("buscadorTablets");
+const contenedorTarjetas = document.getElementById("lista-prestamos-tablets");
+
+if (inputBuscador && contenedorTarjetas) {
+  inputBuscador.addEventListener("input", function () {
+    const filtro = this.value.toLowerCase().trim();
+    const columnas = contenedorTarjetas.querySelectorAll(".col-12");
+
+    columnas.forEach(col => {
+      const texto = col.innerText.toLowerCase();
+      // Si el filtro está vacío o el texto de la tarjeta contiene el filtro → mostrar
+      if (!filtro || texto.includes(filtro)) {
+        col.style.display = "";
+      } else {
+        col.style.display = "none";
+      }
+    });
+  });
+}
+</script>
+
+
 </body>
 </html>

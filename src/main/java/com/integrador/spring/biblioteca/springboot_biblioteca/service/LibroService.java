@@ -11,4 +11,5 @@ public interface LibroService {
     Optional<Libro> buscarPorSn(String sn);
     Libro guardar(Libro libro);
     void eliminar(Long id);
+    List<Libro> listarDisponibles();
 }

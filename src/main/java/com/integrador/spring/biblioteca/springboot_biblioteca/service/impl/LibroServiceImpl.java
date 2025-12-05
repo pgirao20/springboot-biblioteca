@@ -1,12 +1,13 @@
 package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
+import java.util.List;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Libro;
 import com.integrador.spring.biblioteca.springboot_biblioteca.repository.LibroRepository;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.LibroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+
 import java.util.Optional;
 
 @Service
@@ -38,5 +39,10 @@ public class LibroServiceImpl implements LibroService {
     @Override
     public void eliminar(Long id) {
         libroRepository.deleteById(id);
+    }
+
+        @Override
+    public List<Libro> listarDisponibles() {
+        return libroRepository.findByEstado("DISPONIBLE");
     }
 }

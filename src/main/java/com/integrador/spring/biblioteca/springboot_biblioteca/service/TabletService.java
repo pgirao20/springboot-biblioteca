@@ -10,4 +10,5 @@ public interface TabletService {
     Optional<Tablet> buscarPorSn(String sn);
     Tablet guardar(Tablet tablet);
     void eliminar(Long id);
+    List<Tablet> listarDisponibles();
 }

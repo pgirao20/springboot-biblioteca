@@ -33,4 +33,7 @@ public class Libro {
 
     @Column(nullable = false, unique = true, length = 50)
     private String sn;
+    
+    @Column(nullable = false, length = 20)
+    private String estado;   // "DISPONIBLE" o "PRESTADO"
 }
