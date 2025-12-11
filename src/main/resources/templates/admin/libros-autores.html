@@ -1,10 +1,13 @@
+<!-- src/main/resources/templates/admin/libros-autores.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Gestión de Autores', active='libros'">
-<head th:replace="fragments/_header :: head(${title})"></head>
+
+<head th:replace="~{fragments/_header :: head(${title})}"></head>
+
 <body>
 
-<header th:replace="fragments/_header :: header(${active})"></header>
+<header th:replace="~{fragments/_header :: header(${active})}"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1400px;">
   <ul class="nav nav-tabs mb-4">
@@ -15,26 +18,34 @@
   </ul>
 
   <div class="row">
+    <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title mb-3" th:text="${nuevoAutor.id == null} ? 'Registrar Autor' : 'Editar Autor'"></h5>
+          <h5 class="card-title mb-3"
+              th:text="${nuevoAutor.id == null} ? 'Registrar Autor' : 'Editar Autor'"></h5>
 
           <form th:action="@{/admin/libros/autores/guardar}" method="post" th:object="${nuevoAutor}">
             <input type="hidden" th:field="*{id}">
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre del Autor</label>
-              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Gabriel García Márquez" required>
+              <input type="text" class="form-control" th:field="*{nombre}"
+                     placeholder="Ej: Gabriel García Márquez" required>
             </div>
             <div class="d-flex gap-2 mt-3">
-              <button type="submit" class="btn btn-primary w-50"><i class="fa-solid fa-save"></i> Guardar</button>
-              <a th:href="@{/admin/libros/autores}" class="btn btn-light border w-50"><i class="fa-solid fa-rotate"></i> Limpiar</a>
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/libros/autores}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
             </div>
           </form>
         </div>
       </div>
     </div>
 
+    <!-- Tabla -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -45,7 +56,8 @@
           </div>
 
           <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaAutores" style="min-width: 900px;">
+            <table class="table table-hover align-middle table-bordered"
+                   id="tablaAutores" style="min-width: 900px;">
               <thead class="table-light">
                 <tr>
                   <th>ID</th>
@@ -59,10 +71,12 @@
                   <td th:text="${a.nombre}"></td>
                   <td class="text-center">
                     <div class="btn-group">
-                      <a th:href="@{'/admin/libros/autores/editar/' + ${a.id}}" class="btn btn-sm btn-outline-warning">
+                      <a th:href="@{'/admin/libros/autores/editar/' + ${a.id}}"
+                         class="btn btn-sm btn-outline-warning">
                         <i class="fa-solid fa-pen-to-square"></i>
                       </a>
-                      <a th:href="@{'/admin/libros/autores/eliminar/' + ${a.id}}" class="btn btn-sm btn-outline-danger"
+                      <a th:href="@{'/admin/libros/autores/eliminar/' + ${a.id}}"
+                         class="btn btn-sm btn-outline-danger"
                          onclick="return confirm('¿Eliminar este autor?');">
                         <i class="fa-solid fa-trash"></i>
                       </a>
@@ -70,23 +84,30 @@
                   </td>
                 </tr>
                 <tr th:if="${autores.isEmpty()}">
-                  <td colspan="3" class="text-center text-muted py-3">No hay autores registrados</td>
+                  <td colspan="3" class="text-center text-muted py-3">
+                    No hay autores registrados
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_header :: footer"></footer>
+<footer th:replace="~{fragments/_header :: footer}"></footer>
 
+<!-- Buscador -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorAutores");
   const filas = document.querySelectorAll("#tablaAutores tbody tr");
+
+  if (!buscador || filas.length === 0) return;
+
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
     filas.forEach(fila => {
@@ -95,6 +116,47 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+</script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Mensajes ok / warn / error -->
+<script th:inline="javascript">
+  const ok   = /*[[${ok}]]*/ null;
+  const warn = /*[[${warn}]]*/ null;
+  const error = /*[[${error}]]*/ null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: ok,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true
+      });
+    }
+    if (warn) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atención',
+        text: warn,
+        showConfirmButton: true,
+        confirmButtonText: 'Entendido'
+      });
+    }
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        showConfirmButton: true,
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
 </script>
 
 </body>

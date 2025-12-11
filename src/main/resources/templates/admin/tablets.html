@@ -1,10 +1,15 @@
+<!-- src/main/resources/templates/admin/tablets.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Gestión de Tablets', active='tablets'">
-<head th:replace="fragments/_header :: head(${title})"></head>
+
+<head th:replace="~{fragments/_header :: head(${title})}"></head>
+
 <body>
-<header th:replace="fragments/_header :: header(${active})"></header>
+<header th:replace="~{fragments/_header :: header(${active})}"></header>
+
 <main class="container-fluid mt-4" style="max-width: 1500px;">
+
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item"><a class="nav-link active" th:href="@{/admin/tablets}">Registro</a></li>
@@ -63,10 +68,10 @@
             <div class="mb-3" th:if="${nuevaTablet.id != null}">
               <label class="form-label fw-semibold">Estado</label>
               <select class="form-select" th:field="*{estado}" required>
-                <option th:value="'Disponible'">Disponible</option>
-                <option th:value="'Prestada'">Prestada</option>
-                <option th:value="'Mantenimiento'">Mantenimiento</option>
-                <option th:value="'Dañada'">Dañada</option>
+                <option value="Disponible">Disponible</option>
+                <option value="Prestada">Prestada</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Dañada">Dañada</option>
               </select>
             </div>
 
@@ -84,103 +89,119 @@
       </div>
     </div>
 
-    <!-- Tabla de Tablets -->
+    <!-- Cards de Tablets -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
+
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Tablets Registradas</h5>
             <input type="text" id="buscadorTablets" class="form-control form-control-sm"
-                   style="width: 280px;" placeholder="🔍 Buscar...">
+                   style="width: 280px;" placeholder="🔍 Buscar por marca, modelo o SN">
           </div>
 
-          <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaTablets" style="min-width: 1200px;">
-              <thead class="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>SN</th>
-                  <th>Año</th>
-                  <th>Estado</th>
-                  <th class="text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr th:each="t : ${tablets}">
-                  <td th:text="${t.id}"></td>
-                  <td th:text="${t.marca != null ? t.marca.nombre : '—'}"></td>
-                  <td th:text="${t.modelo}"></td>
-                  <td th:text="${t.sn}"></td>
-                  <td th:text="${t.anioAdquisicion}"></td>
-                  <td>
-                    <span class="badge"
-                          th:classappend="${t.estado}=='Disponible' ? ' bg-success' :
-                                          (${t.estado}=='Prestada' ? ' bg-warning text-dark' :
-                                          (${t.estado}=='Mantenimiento' ? ' bg-info text-dark' :
-                                          (${t.estado}=='Dañada' ? ' bg-danger' : ' bg-secondary'))) "
-                          th:text="${t.estado}"></span>
-                  </td>
-                  <td class="text-center">
-                    <div class="btn-group">
-                      <a th:href="@{'/admin/tablets/editar/' + ${t.id}}" class="btn btn-sm btn-outline-warning">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                      </a>
-                      <a th:href="@{'/admin/tablets/eliminar/' + ${t.id}}"
-                         class="btn btn-sm btn-outline-danger"
-                         onclick="return confirm('¿Eliminar esta tablet?');">
-                        <i class="fa-solid fa-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr th:if="${tablets.isEmpty()}">
-                  <td colspan="7" class="text-center text-muted py-3">No hay tablets registradas</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Si no hay tablets -->
+          <div th:if="${tablets.isEmpty()}" class="text-center text-muted py-3">
+            No hay tablets registradas
           </div>
+
+          <!-- Estilo tipo préstamos: cards en columna -->
+          <div class="row g-3" id="lista-tablets" th:if="${!tablets.isEmpty()}">
+            <div class="col-12" th:each="t : ${tablets}">
+
+              <div class="card shadow-sm"
+                   th:classappend="${t.estado} == 'Disponible'     ? ' border-success' :
+                                   (${t.estado} == 'Prestada'      ? ' border-warning' :
+                                   (${t.estado} == 'Mantenimiento' ? ' border-info' :
+                                   (${t.estado} == 'Dañada'        ? ' border-danger' : ' border-secondary')))">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <!-- Info izquierda -->
+                  <div>
+                    <!-- Marca + Modelo -->
+                    <h6 class="mb-1 fw-bold">
+                      <span th:text="${t.marca != null ? t.marca.nombre : 'Sin marca'}"></span>
+                      -
+                      <span th:text="${t.modelo}"></span>
+                    </h6>
+
+                    <!-- SN -->
+                    <small>SN:
+                      <span class="fw-semibold" th:text="${t.sn}"></span>
+                    </small><br>
+
+                    <!-- Año -->
+                    <small>
+                      Año:
+                      <span th:text="${t.anioAdquisicion}"></span>
+                    </small>
+                  </div>
+
+                  <!-- Estado + Acciones derecha -->
+                  <div class="text-end">
+                    <span class="badge mb-2"
+                          th:classappend="${t.estado} == 'Disponible'     ? ' bg-success' :
+                                          (${t.estado} == 'Prestada'      ? ' bg-warning text-dark' :
+                                          (${t.estado} == 'Mantenimiento' ? ' bg-info text-dark' :
+                                          (${t.estado} == 'Dañada'        ? ' bg-danger' : ' bg-secondary')))"
+                          th:text="${t.estado}"></span><br>
+
+                    <a th:href="@{'/admin/tablets/editar/' + ${t.id}}"
+                       class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                      ✏️
+                    </a>
+
+                    <a th:href="@{'/admin/tablets/eliminar/' + ${t.id}}"
+                       class="btn btn-sm btn-outline-danger me-1"
+                       onclick="return confirm('¿Eliminar esta tablet?');" title="Eliminar">
+                      ❌
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div> <!-- row cards -->
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_header :: footer"></footer>
+<footer th:replace="~{fragments/_header :: footer}"></footer>
 
-<!-- Buscador -->
+<!-- Buscador: filtra cards -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorTablets");
-  const filas = document.querySelectorAll("#tablaTablets tbody tr");
+  const items = document.querySelectorAll("#lista-tablets .col-12");
+
+  if (!buscador || items.length === 0) return;
+
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
-    filas.forEach(fila => {
-      const coincide = Array.from(fila.querySelectorAll("td"))
-        .some(td => td.textContent.toLowerCase().includes(texto));
-      fila.style.display = coincide ? "" : "none";
+
+    items.forEach(col => {
+      const contenido = col.textContent.toLowerCase();
+      const coincide = contenido.includes(texto);
+      col.style.display = coincide ? "" : "none";
     });
   });
 });
-
 </script>
-
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script th:inline="javascript">
-const ok = /*[[${ok}]]*/ null;
-const warn = /*[[${warn}]]*/ null;
-const error = /*[[${error}]]*/ null;
+  const ok = /*[[${ok}]]*/ null;
+  const warn = /*[[${warn}]]*/ null;
+  const error = /*[[${error}]]*/ null;
 
-document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", () => {
 
-  // --- Mensaje OK ---
-  if (ok) {
-    const textoLimpio = ok.replace(/\[.*?\]\s*/, ""); 
-    if (ok.startsWith("[GUARDAR]")) {
-      // Mostrar con botón de aceptar
+    // OK
+    if (ok) {
+      const textoLimpio = ok.replace(/\[.*?\]\s*/, "");
       Swal.fire({
         icon: 'success',
         title: 'Éxito',
@@ -189,47 +210,33 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#2563eb'
       });
-    } else {
-      // Mostrar automático (editar o eliminar)
+    }
+
+    // WARN
+    if (warn) {
       Swal.fire({
-        icon: 'success',
-        title: 'Éxito',
-        text: textoLimpio,
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true
+        icon: 'warning',
+        title: 'Atención',
+        text: warn,
+        showConfirmButton: true,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#f59e0b'
       });
     }
-  }
 
-  // --- Mensaje WARN (duplicados) ---
-  if (warn) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Atención',
-      text: warn,
-      showConfirmButton: true,
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#f59e0b'
-    });
-  }
-
-  // --- Mensaje ERROR ---
-  if (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error,
-      showConfirmButton: true,
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#d33'
-    });
-  }
-
-});
+    // ERROR
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        showConfirmButton: true,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
 </script>
-
-
 
 </body>
 </html>

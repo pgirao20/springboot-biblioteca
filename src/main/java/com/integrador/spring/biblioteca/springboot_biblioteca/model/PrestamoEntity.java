@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
+=======
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/PrestamoEntity.java
+package com.integrador.spring.biblioteca.springboot_biblioteca.model;
+import jakarta.persistence.*;
+import lombok.Data;
+>>>>>>> 8a693b5 (prestamos v2)
 import java.time.LocalDate;
 
 @Entity

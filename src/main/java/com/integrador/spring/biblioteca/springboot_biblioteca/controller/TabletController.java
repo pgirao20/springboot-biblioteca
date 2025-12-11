@@ -1,5 +1,5 @@
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/controller/TabletController.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.controller;
-
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Tablet;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.MarcaTabletService;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.TabletService;
@@ -30,7 +30,7 @@ public class TabletController {
                                 @RequestParam(required = false) String error) {
 
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar sesión para acceder al sistema.";
+            return "redirect:/?error=Debe iniciar login para acceder al sistema.";
         }
 
         model.addAttribute("tablets", tabletService.listarTodos());
@@ -165,7 +165,7 @@ public class TabletController {
                                Model model) {
 
         if (session.getAttribute("usuarioLogeado") == null) {
-            return "redirect:/?error=Debe iniciar sesión.";
+            return "redirect:/?error=Debe iniciar login.";
         }
 
         Tablet tablet = tabletService.buscarPorId(id)

@@ -1,5 +1,5 @@
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/controller/SancionController.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.controller;
-
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Sancion;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,12 +1,11 @@
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/Libro.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
-
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "libros")
 @Data
-
 public class Libro {
 
     @Id
@@ -33,7 +32,21 @@ public class Libro {
 
     @Column(nullable = false, unique = true, length = 50)
     private String sn;
+<<<<<<< HEAD
     
     @Column(nullable = false, length = 20)
     private String estado;   // "DISPONIBLE" o "PRESTADO"
+=======
+
+    @Column(nullable = false, length = 20)
+    private String estado = "DISPONIBLE";
+
+    @PrePersist
+    public void prePersist() {
+        if (estado == null || estado.isBlank()) {
+            estado = "DISPONIBLE";
+        }
+    }
+>>>>>>> 8a693b5 (prestamos v2)
 }
+

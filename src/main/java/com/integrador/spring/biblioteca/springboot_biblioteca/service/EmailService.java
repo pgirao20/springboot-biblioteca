@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 package com.integrador.spring.biblioteca.springboot_biblioteca.service;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
 
+=======
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/EmailService.java
+package com.integrador.spring.biblioteca.springboot_biblioteca.service;
+import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
+>>>>>>> 8a693b5 (prestamos v2)
 import java.time.LocalDate;
 import java.util.List;
 

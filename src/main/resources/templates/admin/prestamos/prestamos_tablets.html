@@ -1,3 +1,4 @@
+<!-- src/main/resources/templates/admin/prestamos/prestamo_tablets.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Préstamo de Tablets', active='prestamos'">
@@ -16,7 +17,11 @@
   <div class="row">
     
     <!-- =======================================================
+<<<<<<< HEAD
          COLUMNA IZQUIERDA: NUEVO PRÉSTAMO DE TABLET
+=======
+         COLUMNA IZQUIERDA: NUEVO PRÉSTAMO
+>>>>>>> 8a693b5 (prestamos v2)
     ======================================================== -->
     <div class="col-md-5">
       <div class="card shadow-sm mb-4">
@@ -132,6 +137,9 @@
             <input type="hidden" id="sns" name="sns">
 
             <button class="btn btn-primary w-100">Confirmar Préstamo</button>
+            <button type="button" class="btn btn-light border w-100 mt-2" onclick="limpiarPrestamo()">
+              <i class="fa-solid fa-rotate"></i> Limpiar
+            </button>
           </form>
         </div>
       </div>
@@ -170,7 +178,12 @@
                                           (${p.estado == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-secondary'))"
                           th:text="${p.estado}">
                     </span><br>
+<<<<<<< HEAD
                     <button class="btn btn-sm btn-outline-warning me-1">✏️</button>
+=======
+                    <!--========= -->
+                    <!-- <button class="btn btn-sm btn-outline-warning me-1">✏️</button> -->
+>>>>>>> 8a693b5 (prestamos v2)
                     <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
                     <input type="hidden" name="codigo" th:value="${p.codigo}">
                     <input type="hidden" name="tipo" value="tablets">
@@ -202,6 +215,7 @@
      JAVASCRIPT PARA MANEJO DE PRELISTA
 ======================================================= -->
 <script>
+<<<<<<< HEAD
     // Fecha devolución mínima = fecha préstamo + 1 día
 // Fecha devolución restringida: mínimo 1 día después, máximo 7 días después
 const fechaPrestamoInput = document.getElementById('fechaPrestamo');
@@ -222,6 +236,19 @@ fechaPrestamoInput.addEventListener('change', () => {
   max.setDate(max.getDate() + 7);
 
   // Convertir a YYYY-MM-DD
+=======
+document.addEventListener("DOMContentLoaded", () => {
+  const fechaPrestamoInput   = document.getElementById('fechaPrestamo');
+  const fechaDevolucionInput = document.getElementById('fechaDevolucion');
+  const formTablets          = document.getElementById("form-tablets");
+
+  if (!fechaPrestamoInput || !fechaDevolucionInput || !formTablets) {
+    console.warn("No se encontraron inputs de fechas o el form de tablets.");
+    return;
+  }
+
+  // Helper: YYYY-MM-DD
+>>>>>>> 8a693b5 (prestamos v2)
   const toDateString = (d) => {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -229,6 +256,7 @@ fechaPrestamoInput.addEventListener('change', () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+<<<<<<< HEAD
   const minDev = toDateString(min);
   const maxDev = toDateString(max);
 
@@ -275,12 +303,88 @@ function agregarTabletPrelista() {
 
   const fila = tbody.insertRow();
   fila.innerHTML = `
+=======
+  // Configura min/max de fechaDevolucion a partir de la fecha de préstamo
+  function configurarRangoDevolucion(fechaPrestamoStr) {
+    if (!fechaPrestamoStr) return;
+
+    const fecha = new Date(fechaPrestamoStr + 'T00:00:00');
+
+    // Mínimo = préstamo + 1 día (mañana)
+    const min = new Date(fecha);
+    min.setDate(min.getDate() + 1);
+
+    // Máximo = préstamo + 7 días
+    const max = new Date(fecha);
+    max.setDate(max.getDate() + 7);
+
+    const minDev = toDateString(min);
+    const maxDev = toDateString(max);
+
+    fechaDevolucionInput.min = minDev;
+    fechaDevolucionInput.max = maxDev;
+
+    // Si el usuario ya había elegido algo fuera de rango, lo limpiamos
+    if (fechaDevolucionInput.value &&
+       (fechaDevolucionInput.value < minDev || fechaDevolucionInput.value > maxDev)) {
+      fechaDevolucionInput.value = "";
+    }
+  }
+
+  // 1) Autollenar fecha de préstamo con HOY y configurar rango de devolución
+  (function cargarFechaHoy() {
+    const hoy = new Date();
+    const hoyStr = toDateString(hoy);
+    fechaPrestamoInput.value = hoyStr;
+    configurarRangoDevolucion(hoyStr);
+  })();
+
+  // 2) Si cambia la fecha de préstamo, recalcular rango de devolución
+  fechaPrestamoInput.addEventListener('change', () => {
+    configurarRangoDevolucion(fechaPrestamoInput.value);
+  });
+
+  // =============================
+  //   PRELISTA DE TABLETS
+  // =============================
+
+  function agregarTabletPrelista() {
+    const input  = document.getElementById("tabletInput").value.trim();
+    const estado = document.getElementById("estadoInput").value;
+    const tbody  = document.querySelector("#tabla-prelista tbody");
+
+    if (!input || !input.includes(" - ")) {
+      alert("Selecciona una tablet válida de la lista.");
+      return;
+    }
+
+    const partes = input.split(" - ");
+    const sn     = partes[0];
+    const modelo = partes.slice(1).join(" - ");
+
+    // borrar fila "Sin tablets agregadas"
+    if (tbody.rows.length === 1 && tbody.rows[0].cells.length === 1) {
+      tbody.innerHTML = "";
+    }
+
+    // evitar duplicados
+    for (const fila of tbody.rows) {
+      if (fila.cells[0].innerText.startsWith(sn)) {
+        alert("Esta tablet ya está en la prelista.");
+        return;
+      }
+    }
+
+    const fila = tbody.insertRow();
+    fila.innerHTML = `
+>>>>>>> 8a693b5 (prestamos v2)
       <td>${sn} - ${modelo}</td>
       <td>${estado}</td>
       <td>
         <button type="button" class="btn btn-sm btn-warning me-1" onclick="editarFilaTablet(this)">Editar</button>
         <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Quitar</button>
       </td>
+<<<<<<< HEAD
   `;
 
   document.getElementById("tabletInput").value = "";
@@ -337,6 +441,132 @@ document.getElementById("form-tablets").addEventListener("submit", function(e) {
     return;
   }
 });
+=======
+    `;
+
+    document.getElementById("tabletInput").value = "";
+  }
+
+  function editarFilaTablet(btn) {
+    const fila   = btn.closest("tr");
+    const valor  = fila.cells[0].innerText;
+    const estado = fila.cells[1].innerText;
+
+    document.getElementById("tabletInput").value = valor;
+    document.getElementById("estadoInput").value = estado;
+
+    fila.remove();
+  }
+
+  // Exponer funciones al scope global para los onclick del HTML
+  window.agregarTabletPrelista = agregarTabletPrelista;
+  window.editarFilaTablet      = editarFilaTablet;
+
+  // =============================
+  //   SUBMIT FORM TABLETS
+  // =============================
+  formTablets.addEventListener("submit", function(e) {
+    const tbody = document.querySelector("#tabla-prelista tbody");
+
+    if (tbody.rows.length === 0 ||
+       (tbody.rows.length === 1 && tbody.rows[0].cells.length === 1)) {
+      e.preventDefault();
+      alert("Debes agregar al menos una tablet a la prelista.");
+      return;
+    }
+
+    // Estudiante: extraer código (antes de " - ")
+    const estStr = document.getElementById("estudianteInput").value.trim();
+    if (!estStr.includes(" - ")) {
+      e.preventDefault();
+      alert("Selecciona un estudiante válido de la lista.");
+      return;
+    }
+    const codEst = estStr.split(" - ")[0].trim();
+    document.getElementById("codigoEstudiante").value = codEst;
+
+    // Armar lista de SNs desde la prelista
+    const sns = [];
+    for (const fila of tbody.rows) {
+      const texto = fila.cells[0].innerText; // "SNXXX - Marca Modelo"
+      const sn    = texto.split(" - ")[0].trim();
+      sns.push(sn);
+    }
+    document.getElementById("sns").value = sns.join(",");
+
+    // Validación de fechas
+    const fp    = fechaPrestamoInput.value;
+    const fd    = fechaDevolucionInput.value;
+    const minDev = fechaDevolucionInput.min;
+    const maxDev = fechaDevolucionInput.max;
+
+    if (!fp || !fd) {
+      e.preventDefault();
+      alert("Debes seleccionar ambas fechas.");
+      return;
+    }
+
+    if (fd < minDev || fd > maxDev) {
+      e.preventDefault();
+      alert("La fecha de devolución debe ser entre 1 y 7 días después de la fecha de préstamo.");
+      return;
+    }
+  });
+});
+</script>
+<script>
+  function limpiarPrestamo() {
+  // Limpiar estudiante
+  document.getElementById("estudianteInput").value = "";
+  document.getElementById("codigoEstudiante").value = "";
+
+  // Limpiar fechas
+  const fechaPrestamoInput = document.getElementById("fechaPrestamo");
+  const fechaDevolucionInput = document.getElementById("fechaDevolucion");
+
+  // Fecha hoy
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  const hoyStr = `${yyyy}-${mm}-${dd}`;
+
+  // Restaurar fecha préstamo a hoy
+  fechaPrestamoInput.value = hoyStr;
+
+  // Disparar evento para actualizar min/max de devolución
+  fechaPrestamoInput.dispatchEvent(new Event("change"));
+
+  // Limpiar fecha de devolución
+  fechaDevolucionInput.value = "";
+
+  // Limpiar SNs ocultos
+  document.getElementById("sns").value = "";
+
+  // Limpiar tabla prelista
+  const tbody = document.querySelector("#tabla-prelista tbody");
+  tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center text-muted py-3">
+          Sin libros agregados
+        </td>
+      </tr>
+  `;
+
+  // Restaurar estado por defecto si existe
+  const estadoInput = document.getElementById("estadoInput");
+  if (estadoInput) estadoInput.value = estadoInput.options[0].value;
+
+  // Opcional: Alerta de reseteo
+  Swal.fire({
+    icon: 'info',
+    title: 'Formulario Restablecido',
+    text: 'El préstamo ha sido cancelado y el formulario se limpió.',
+    timer: 1200,
+    showConfirmButton: false
+  });
+}
+>>>>>>> 8a693b5 (prestamos v2)
 </script>
 <script>
 // Filtro por código de estudiante o SN de tablet (o cualquier texto en la tarjeta)

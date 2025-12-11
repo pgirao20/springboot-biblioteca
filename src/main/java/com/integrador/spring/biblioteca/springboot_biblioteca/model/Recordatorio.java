@@ -1,5 +1,5 @@
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/Recordatorio.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
-
 public class Recordatorio {
     private Long id;
     private String mensaje;
@@ -12,7 +12,6 @@ public class Recordatorio {
         this.mensaje = mensaje;
         this.frecuencia = frecuencia;
     }
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getMensaje() { return mensaje; }

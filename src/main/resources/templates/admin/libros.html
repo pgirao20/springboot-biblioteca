@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Gestión de Libros', active='libros'">
-<head th:replace="fragments/_header :: head(${title})"></head>
+
+<head th:replace="~{fragments/_header :: head(${title})}"></head>
+
 <body>
 
-<header th:replace="fragments/_header :: header(${active})"></header>
+<header th:replace="~{fragments/_header :: header(${active})}"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1500px;">
 
@@ -15,9 +17,6 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/autores}">Autores</a></li>
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/libros/editoriales}">Editoriales</a></li>
   </ul>
-
-<!-- Mensajes flash -->
-
 
   <div class="row">
     <!-- Formulario -->
@@ -30,16 +29,21 @@
           <form th:action="@{/admin/libros/guardar}" method="post" th:object="${nuevoLibro}">
             <input type="hidden" th:field="*{id}"/>
 
+            <!-- Título -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Título</label>
-              <input type="text" class="form-control" th:field="*{titulo}" placeholder="Ej: El Principito" required>
+              <input type="text" class="form-control" th:field="*{titulo}"
+                     placeholder="Ej: El Principito" required>
             </div>
 
+            <!-- Año -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Año Publicación</label>
-              <input type="number" class="form-control" th:field="*{anio}" min="1900" max="2100" placeholder="Ej: 2020" required>
+              <input type="number" class="form-control" th:field="*{anio}"
+                     min="1900" max="2100" placeholder="Ej: 2020" required>
             </div>
 
+            <!-- Autor -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Autor</label>
               <select class="form-select" th:field="*{autor.id}" required>
@@ -48,6 +52,7 @@
               </select>
             </div>
 
+            <!-- Editorial -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Editorial</label>
               <select class="form-select" th:field="*{editorial.id}" required>
@@ -56,6 +61,7 @@
               </select>
             </div>
 
+            <!-- Área -->
             <div class="mb-3">
               <label class="form-label fw-semibold">Área</label>
               <select class="form-select" th:field="*{area.id}" required>
@@ -64,20 +70,40 @@
               </select>
             </div>
 
-            <!-- Campo SN dinámico -->
+            <!-- Alta múltiple de SNs (solo al registrar) -->
             <div th:if="${nuevoLibro.id == null}" class="mb-3">
               <label class="form-label fw-semibold">Alta múltiple de SNs</label>
               <textarea name="snMultiple" class="form-control" rows="4"
                         placeholder="SN001&#10;SN002&#10;SN003"></textarea>
-              <small class="text-muted">Ingrese uno o varios números de serie, uno por línea.</small>
+              <small class="text-muted">
+                Ingrese uno o varios números de serie, uno por línea.
+              </small>
             </div>
 
+            <!-- SN individual (solo al editar) -->
             <div th:if="${nuevoLibro.id != null}" class="mb-3">
               <label class="form-label fw-semibold">SN (Número de Serie)</label>
               <input type="text" class="form-control" th:field="*{sn}" required>
-              <small class="text-muted">El número de serie debe ser único. Si ya existe, se mostrará un aviso.</small>
+              <small class="text-muted">
+                El número de serie debe ser único. Si ya existe, se mostrará un aviso.
+              </small>
             </div>
 
+            <!-- ESTADO (solo al editar) -->
+            <div th:if="${nuevoLibro.id != null}" class="mb-3">
+              <label class="form-label fw-semibold">Estado</label>
+              <select class="form-select" th:field="*{estado}" required>
+                <option value="Disponible">Disponible</option>
+                <option value="Prestado">Prestado</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Dañado">Dañado</option>
+              </select>
+              <small class="text-muted">
+                Solo se puede modificar el estado al editar un libro.
+              </small>
+            </div>
+
+            <!-- Botones -->
             <div class="d-flex gap-2 mt-3">
               <button type="submit" class="btn btn-primary w-50">
                 <i class="fa-solid fa-save"></i> Guardar
@@ -91,125 +117,160 @@
       </div>
     </div>
 
-    <!-- Tabla -->
+    <!-- LISTADO EN CARDS (estilo préstamos) -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Libros Registrados</h5>
             <input type="text" id="buscadorLibros" class="form-control form-control-sm"
-                   style="width: 280px;" placeholder="🔍 Buscar...">
+                   style="width: 280px;" placeholder="🔍 Buscar por título, autor, editorial, área o SN">
           </div>
 
-          <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaLibros" style="min-width: 1200px;">
-              <thead class="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Título</th>
-                  <th>Autor</th>
-                  <th>Editorial</th>
-                  <th>Área</th>
-                  <th>Año</th>
-                  <th>SN</th>
-                  <th class="text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr th:each="l : ${libros}">
-                  <td th:text="${l.id}"></td>
-                  <td th:text="${l.titulo}"></td>
-                  <td th:text="${l.autor.nombre}"></td>
-                  <td th:text="${l.editorial.nombre}"></td>
-                  <td th:text="${l.area.nombre}"></td>
-                  <td th:text="${l.anio}"></td>
-                  <td th:text="${l.sn}"></td>
-                  <td class="text-center">
-                    <div class="btn-group">
-                      <a th:href="@{'/admin/libros/editar/' + ${l.id}}" class="btn btn-sm btn-outline-warning">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                      </a>
-                      <a th:href="@{'/admin/libros/eliminar/' + ${l.id}}"
-                         class="btn btn-sm btn-outline-danger"
-                         onclick="return confirm('¿Eliminar este libro?');">
-                        <i class="fa-solid fa-trash"></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-                <tr th:if="${libros.isEmpty()}">
-                  <td colspan="8" class="text-center text-muted py-3">No hay libros registrados</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Si no hay libros -->
+          <div th:if="${libros.isEmpty()}" class="text-center text-muted py-3">
+            No hay libros registrados
           </div>
+
+          <!-- Cards al estilo préstamos -->
+          <div class="row g-3" id="lista-libros" th:if="${!libros.isEmpty()}">
+            <div class="col-12" th:each="l : ${libros}">
+              <div class="card shadow-sm"
+                   th:classappend="${#strings.toLowerCase(l.estado)} == 'disponible'     ? ' border-success' :
+                                   (${#strings.toLowerCase(l.estado)} == 'prestado'      ? ' border-warning' :
+                                   (${#strings.toLowerCase(l.estado)} == 'mantenimiento' ? ' border-info' :
+                                   (${#strings.toLowerCase(l.estado)} == 'dañado'        ? ' border-danger' : ' border-secondary')))">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+                  <!-- INFO IZQUIERDA -->
+                  <div>
+                    <!-- Título -->
+                    <h6 class="mb-1 fw-bold" th:text="${l.titulo}"></h6>
+
+                    <!-- Autor / Editorial -->
+                    <small>
+                      Autor:
+                      <span class="fw-semibold" th:text="${l.autor.nombre}"></span>
+                      &nbsp;|&nbsp;
+                      Editorial:
+                      <span th:text="${l.editorial.nombre}"></span>
+                    </small>
+                    <br>
+
+                    <!-- Área / Año -->
+                    <small>
+                      Área:
+                      <span th:text="${l.area.nombre}"></span>
+                      &nbsp;|&nbsp;
+                      Año:
+                      <span th:text="${l.anio}"></span>
+                    </small>
+                    <br>
+
+                    <!-- SN -->
+                    <small>
+                      SN:
+                      <span class="fw-semibold" th:text="${l.sn}"></span>
+                    </small>
+                  </div>
+
+                  <!-- ESTADO + ACCIONES DERECHA -->
+                  <div class="text-end">
+                    <!-- Badge estado -->
+                    <span class="badge mb-2"
+                          th:classappend="${#strings.toLowerCase(l.estado)} == 'disponible'     ? ' bg-success' :
+                                          (${#strings.toLowerCase(l.estado)} == 'prestado'      ? ' bg-warning text-dark' :
+                                          (${#strings.toLowerCase(l.estado)} == 'mantenimiento' ? ' bg-info text-dark' :
+                                          (${#strings.toLowerCase(l.estado)} == 'dañado'        ? ' bg-danger' : ' bg-secondary')))"
+                          th:text="${l.estado}">
+                    </span>
+                    <br>
+
+                    <!-- Botones -->
+                    <a th:href="@{'/admin/libros/editar/' + ${l.id}}"
+                       class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                      ✏️
+                    </a>
+                    <a th:href="@{'/admin/libros/eliminar/' + ${l.id}}"
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('¿Eliminar este libro?');"
+                       title="Eliminar">
+                      ❌
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> <!-- row cards -->
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_header :: footer"></footer>
+<footer th:replace="~{fragments/_header :: footer}"></footer>
 
-<!-- Buscador -->
+<!-- Buscador: filtra cards -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorLibros");
-  const filas = document.querySelectorAll("#tablaLibros tbody tr");
+  const items = document.querySelectorAll("#lista-libros .col-12");
+
+  if (!buscador || items.length === 0) return;
 
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
-    filas.forEach(fila => {
-      const celdas = fila.querySelectorAll("td");
-      const coincide = Array.from(celdas).some(td => td.textContent.toLowerCase().includes(texto));
-      fila.style.display = coincide ? "" : "none";
+
+    items.forEach(col => {
+      const contenido = col.textContent.toLowerCase();
+      const coincide = contenido.includes(texto);
+      col.style.display = coincide ? "" : "none";
     });
   });
 });
 </script>
+
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script th:inline="javascript">
+  const ok = /*[[${ok}]]*/ null;
+  const warn = /*[[${warn}]]*/ null;
+  const error = /*[[${error}]]*/ null;
 
-const ok = /*[[${ok}]]*/ null;
-const warn = /*[[${warn}]]*/ null;
-const error = /*[[${error}]]*/ null;
+  document.addEventListener("DOMContentLoaded", () => {
 
-document.addEventListener("DOMContentLoaded", () => {
+    if (ok) {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: ok,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true
+      });
+    }
 
-  if (ok) {
-    Swal.fire({
-      icon: 'success',
-      title: '¡Éxito!',
-      text: ok,
-      showConfirmButton: false,
-      timer: 1000,
-      timerProgressBar: true
-    });
-  }
+    if (warn) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atención',
+        text: warn,
+        showConfirmButton: true,
+        confirmButtonText: 'Entendido'
+      });
+    }
 
-  if (warn) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Atención',
-      text: warn,
-      showConfirmButton: true,
-      confirmButtonText: 'Entendido'
-    });
-  }
-
-  if (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error,
-      showConfirmButton: true,
-      confirmButtonColor: '#d33'
-    });
-  }
-});
-
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        showConfirmButton: true,
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
 </script>
 
 </body>

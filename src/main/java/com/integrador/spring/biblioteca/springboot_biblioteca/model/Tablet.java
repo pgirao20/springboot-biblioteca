@@ -1,5 +1,5 @@
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/Tablet.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
-
 import jakarta.persistence.*;
 import lombok.*;
 

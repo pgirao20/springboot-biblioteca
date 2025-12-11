@@ -1,10 +1,13 @@
+<!-- src/main/resources/templates/admin/libros-editoriales.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Gestión de Editoriales', active='libros'">
-<head th:replace="fragments/_header :: head(${title})"></head>
+
+<head th:replace="~{fragments/_header :: head(${title})}"></head>
+
 <body>
 
-<header th:replace="fragments/_header :: header(${active})"></header>
+<header th:replace="~{fragments/_header :: header(${active})}"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1400px;">
   <ul class="nav nav-tabs mb-4">
@@ -15,26 +18,35 @@
   </ul>
 
   <div class="row">
+    <!-- Formulario -->
     <div class="col-md-4 mb-4">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title mb-3" th:text="${nuevaEditorial.id == null} ? 'Registrar Editorial' : 'Editar Editorial'"></h5>
+          <h5 class="card-title mb-3"
+              th:text="${nuevaEditorial.id == null} ? 'Registrar Editorial' : 'Editar Editorial'"></h5>
 
-          <form th:action="@{/admin/libros/editoriales/guardar}" method="post" th:object="${nuevaEditorial}">
+          <form th:action="@{/admin/libros/editoriales/guardar}" method="post"
+                th:object="${nuevaEditorial}">
             <input type="hidden" th:field="*{id}">
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre de la Editorial</label>
-              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Santillana, Planeta, Norma" required>
+              <input type="text" class="form-control" th:field="*{nombre}"
+                     placeholder="Ej: Planeta, Santillana" required>
             </div>
             <div class="d-flex gap-2 mt-3">
-              <button type="submit" class="btn btn-primary w-50"><i class="fa-solid fa-save"></i> Guardar</button>
-              <a th:href="@{/admin/libros/editoriales}" class="btn btn-light border w-50"><i class="fa-solid fa-rotate"></i> Limpiar</a>
+              <button type="submit" class="btn btn-primary w-50">
+                <i class="fa-solid fa-save"></i> Guardar
+              </button>
+              <a th:href="@{/admin/libros/editoriales}" class="btn btn-light border w-50">
+                <i class="fa-solid fa-rotate"></i> Limpiar
+              </a>
             </div>
           </form>
         </div>
       </div>
     </div>
 
+    <!-- Tabla -->
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -45,7 +57,8 @@
           </div>
 
           <div class="table-responsive">
-            <table class="table table-hover align-middle table-bordered" id="tablaEditoriales" style="min-width: 900px;">
+            <table class="table table-hover align-middle table-bordered"
+                   id="tablaEditoriales" style="min-width: 900px;">
               <thead class="table-light">
                 <tr>
                   <th>ID</th>
@@ -59,10 +72,12 @@
                   <td th:text="${e.nombre}"></td>
                   <td class="text-center">
                     <div class="btn-group">
-                      <a th:href="@{'/admin/libros/editoriales/editar/' + ${e.id}}" class="btn btn-sm btn-outline-warning">
+                      <a th:href="@{'/admin/libros/editoriales/editar/' + ${e.id}}"
+                         class="btn btn-sm btn-outline-warning">
                         <i class="fa-solid fa-pen-to-square"></i>
                       </a>
-                      <a th:href="@{'/admin/libros/editoriales/eliminar/' + ${e.id}}" class="btn btn-sm btn-outline-danger"
+                      <a th:href="@{'/admin/libros/editoriales/eliminar/' + ${e.id}}"
+                         class="btn btn-sm btn-outline-danger"
                          onclick="return confirm('¿Eliminar esta editorial?');">
                         <i class="fa-solid fa-trash"></i>
                       </a>
@@ -70,23 +85,30 @@
                   </td>
                 </tr>
                 <tr th:if="${editoriales.isEmpty()}">
-                  <td colspan="3" class="text-center text-muted py-3">No hay editoriales registradas</td>
+                  <td colspan="3" class="text-center text-muted py-3">
+                    No hay editoriales registradas
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 </main>
 
-<footer th:replace="fragments/_header :: footer"></footer>
+<footer th:replace="~{fragments/_header :: footer}"></footer>
 
+<!-- Buscador -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const buscador = document.getElementById("buscadorEditoriales");
   const filas = document.querySelectorAll("#tablaEditoriales tbody tr");
+
+  if (!buscador || filas.length === 0) return;
+
   buscador.addEventListener("keyup", () => {
     const texto = buscador.value.toLowerCase().trim();
     filas.forEach(fila => {
@@ -95,6 +117,47 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+</script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Mensajes ok / warn / error -->
+<script th:inline="javascript">
+  const ok   = /*[[${ok}]]*/ null;
+  const warn = /*[[${warn}]]*/ null;
+  const error = /*[[${error}]]*/ null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: ok,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true
+      });
+    }
+    if (warn) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atención',
+        text: warn,
+        showConfirmButton: true,
+        confirmButtonText: 'Entendido'
+      });
+    }
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        showConfirmButton: true,
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
 </script>
 
 </body>

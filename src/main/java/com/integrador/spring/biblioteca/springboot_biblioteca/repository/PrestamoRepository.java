@@ -1,17 +1,26 @@
+<<<<<<< HEAD
 package com.integrador.spring.biblioteca.springboot_biblioteca.repository;
 
+=======
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/repository/PrestamoRepository.java
+package com.integrador.spring.biblioteca.springboot_biblioteca.repository;
+>>>>>>> 8a693b5 (prestamos v2)
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.EstadoPrestamo;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.PrestamoEntity;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Libro;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8a693b5 (prestamos v2)
 import java.util.List;
 
 @Repository
 public interface PrestamoRepository extends JpaRepository<PrestamoEntity, Long> {
 
+<<<<<<< HEAD
     /**
      * 🔹 Listar préstamos de LIBROS
      *    (tablet == null => es préstamo de libro)
@@ -41,5 +50,12 @@ public interface PrestamoRepository extends JpaRepository<PrestamoEntity, Long> 
      */
     List<PrestamoEntity> findByEstadoOrderByFechaPrestamoDesc(EstadoPrestamo estado);
 
+=======
+    List<PrestamoEntity> findByTabletIsNullOrderByFechaPrestamoDesc();
+    boolean existsByLibroAndEstadoNot(Libro libro, EstadoPrestamo estadoDevuelto);
+    List<PrestamoEntity> findByLibroAndEstadoNot(Libro libro, EstadoPrestamo estadoDevuelto);
+    List<PrestamoEntity> findByEstudianteOrderByFechaPrestamoDesc(Estudiante estudiante);
+    List<PrestamoEntity> findByEstadoOrderByFechaPrestamoDesc(EstadoPrestamo estado);
+>>>>>>> 8a693b5 (prestamos v2)
     List<PrestamoEntity> findByTabletIsNotNullOrderByFechaPrestamoDesc();
 }

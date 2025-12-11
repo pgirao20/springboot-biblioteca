@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 package com.integrador.spring.biblioteca.springboot_biblioteca.service;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Prestamo;
 
+=======
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/PrestamoService.java
+package com.integrador.spring.biblioteca.springboot_biblioteca.service;
+import com.integrador.spring.biblioteca.springboot_biblioteca.model.Prestamo;
+>>>>>>> 8a693b5 (prestamos v2)
 import java.time.LocalDate;
 import java.util.List;
 

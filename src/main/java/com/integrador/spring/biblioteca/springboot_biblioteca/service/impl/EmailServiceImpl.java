@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
+=======
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/impl/EmailServiceImpl.java
+package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
+>>>>>>> 8a693b5 (prestamos v2)
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.EmailService;
 

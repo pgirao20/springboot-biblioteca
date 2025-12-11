@@ -1,15 +1,22 @@
+<!-- src/main/resources/templates/admin/marcas_tablet.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Gestión de Marcas de Tablets', active='tablets'">
-<head th:replace="fragments/_header :: head(${title})"></head>
+
+<head th:replace="~{fragments/_header :: head(${title})}"></head>
+
 <body>
 
-<header th:replace="fragments/_header :: header(${active})"></header>
+<header th:replace="~{fragments/_header :: header(${active})}"></header>
 
 <main class="container-fluid mt-4" style="max-width: 1200px;">
   <ul class="nav nav-tabs mb-4">
-    <li class="nav-item"><a class="nav-link" th:href="@{/admin/tablets}">Registro</a></li>
-    <li class="nav-item"><a class="nav-link active" th:href="@{/admin/tablets/marcas}">Marcas</a></li>
+    <li class="nav-item">
+      <a class="nav-link" th:href="@{/admin/tablets}">Registro</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" th:href="@{/admin/tablets/marcas}">Marcas</a>
+    </li>
   </ul>
 
   <div class="row">
@@ -20,14 +27,18 @@
           <h5 class="card-title mb-3"
               th:text="${nuevaMarca.id == null} ? 'Registrar Marca' : 'Editar Marca'"></h5>
 
-          <form th:action="@{/admin/tablets/marcas/guardar}" method="post" th:object="${nuevaMarca}">
+          <form th:action="@{/admin/tablets/marcas/guardar}" method="post"
+                th:object="${nuevaMarca}">
             <input type="hidden" th:field="*{id}">
 
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre</label>
-              <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Samsung, Lenovo" required>
+              <input type="text" class="form-control" th:field="*{nombre}"
+                     placeholder="Ej: Samsung, Lenovo" required>
             </div>
 
+            <!-- 👇 YA NO SE MUESTRA EL ESTADO -->
+            <!--
             <div class="mb-3" th:if="${nuevaMarca.id != null}">
               <label class="form-label fw-semibold">Estado</label>
               <select class="form-select" th:field="*{estado}">
@@ -35,6 +46,7 @@
                 <option th:value="'Inactiva'">Inactiva</option>
               </select>
             </div>
+            -->
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-primary w-50">
@@ -60,7 +72,8 @@
                 <tr>
                   <th>ID</th>
                   <th>Nombre</th>
-                  <th>Estado</th>
+                  <!-- 👇 YA NO SE MUESTRA COLUMNA ESTADO -->
+                  <!-- <th>Estado</th> -->
                   <th class="text-center">Acciones</th>
                 </tr>
               </thead>
@@ -68,11 +81,16 @@
                 <tr th:each="m : ${marcas}">
                   <td th:text="${m.id}"></td>
                   <td th:text="${m.nombre}"></td>
+
+                  <!-- 👇 COLUMNA ESTADO ELIMINADA -->
+                  <!--
                   <td>
                     <span class="badge"
                           th:classappend="${m.estado == 'Disponible'} ? 'bg-success' : 'bg-secondary'"
                           th:text="${m.estado}"></span>
                   </td>
+                  -->
+
                   <td class="text-center">
                     <div class="btn-group">
                       <a th:href="@{'/admin/tablets/marcas/editar/' + ${m.id}}"
@@ -88,7 +106,10 @@
                   </td>
                 </tr>
                 <tr th:if="${marcas.isEmpty()}">
-                  <td colspan="4" class="text-center text-muted py-3">No hay marcas registradas</td>
+                  <!-- Antes colspan="4", ahora 3 columnas -->
+                  <td colspan="3" class="text-center text-muted py-3">
+                    No hay marcas registradas
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -100,5 +121,36 @@
 </main>
 
 <footer th:replace="fragments/_header :: footer"></footer>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:inline="javascript">
+  const ok    = /*[[${ok}]]*/ null;
+  const error = /*[[${error}]]*/ null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: ok,
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true
+      });
+    }
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error,
+        showConfirmButton: true,
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
+</script>
+
 </body>
 </html>

@@ -1,4 +1,4 @@
-// service/IAreaService.java
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/IAreaService.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.service;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Area;
 import java.util.List;

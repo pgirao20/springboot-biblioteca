@@ -1,5 +1,5 @@
+//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/Usuario.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
-
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,7 +21,7 @@ public class Usuario {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    // 🔹 Nuevo campo rol
+
     @Column(nullable = false, length = 20)
     private String rol; // valores: "ADMIN" o "USER"
 }

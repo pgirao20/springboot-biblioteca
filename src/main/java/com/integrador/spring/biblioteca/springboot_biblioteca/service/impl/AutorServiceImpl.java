@@ -1,4 +1,4 @@
-// service/impl/AutorServiceImpl.java
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/impl/AutorServiceImpl.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Autor;

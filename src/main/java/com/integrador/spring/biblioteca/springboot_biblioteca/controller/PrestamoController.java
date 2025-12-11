@@ -1,5 +1,13 @@
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/controller/PrestamoController.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.controller;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.EstudianteService;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.LibroService;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.PrestamoService;
+import com.integrador.spring.biblioteca.springboot_biblioteca.service.TabletService;
 
+import lombok.RequiredArgsConstructor;
+
+<<<<<<< HEAD
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Estudiante;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Libro;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Prestamo;
@@ -12,11 +20,16 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+=======
+>>>>>>> 8a693b5 (prestamos v2)
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.PathVariable;
+=======
+>>>>>>> 8a693b5 (prestamos v2)
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

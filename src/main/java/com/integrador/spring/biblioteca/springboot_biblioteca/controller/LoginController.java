@@ -1,6 +1,5 @@
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/controller/LoginController.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.controller;
-
-//import com.integrador.spring.biblioteca.springboot_biblioteca.model.Usuario;
 import com.integrador.spring.biblioteca.springboot_biblioteca.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -46,7 +45,7 @@ public class LoginController {
                     }
                 })
                 .orElseGet(() -> {
-                    model.addAttribute("error", "Usuario o contraseña incorrectos.Contáctese con el administrador");
+                    model.addAttribute("error", "Usuario o contraseña incorrectos.Contactar con el administrador");
                     return "login/index";
                 });
     }

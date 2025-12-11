@@ -1,5 +1,5 @@
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/controller/LibroController.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.controller;
-
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Libro;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.LibroService;
 import com.integrador.spring.biblioteca.springboot_biblioteca.service.IAutorService;
@@ -24,6 +24,7 @@ public class LibroController {
     @Autowired private IEditorialService editorialService;
     @Autowired private IAreaService areaService;
 
+    
     // Listar todos los libros
     @GetMapping
     public String listar(HttpSession session,

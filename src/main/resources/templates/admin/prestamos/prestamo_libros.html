@@ -1,3 +1,4 @@
+<!-- src/main/resources/templates/admin/prestamos/prestamo_libros.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:with="title='Préstamo de Libros', active='prestamos'">
@@ -20,7 +21,13 @@
   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
   <div class="row">
+<<<<<<< HEAD
     <!-- Columna izquierda: Nuevo préstamo + Prelista -->
+=======
+    <!-- =======================================================
+         COLUMNA IZQUIERDA: NUEVO PRÉSTAMO 
+    ======================================================== -->
+>>>>>>> 8a693b5 (prestamos v2)
     <div class="col-md-5">
       <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -30,7 +37,13 @@
                 th:action="@{/admin/prestamos/libros/registrar}"
                 method="post">
 
+<<<<<<< HEAD
             <!-- Estudiante -->
+=======
+            <!-- ============================
+                 Estudiante
+            ============================= -->
+>>>>>>> 8a693b5 (prestamos v2)
             <div class="mb-3">
               <label class="form-label">Estudiante</label>
               <input list="listaEstudiantes"
@@ -44,7 +57,13 @@
               </datalist>
             </div>
 
+<<<<<<< HEAD
             <!-- Libro (SN) -->
+=======
+            <!-- ============================
+                 Tablet (input list)
+            ============================= -->
+>>>>>>> 8a693b5 (prestamos v2)
             <div class="mb-3">
               <label class="form-label">Libro (SN - Título)</label>
               <input list="listaLibros"
@@ -57,7 +76,13 @@
               </datalist>
             </div>
 
+<<<<<<< HEAD
             <!-- Estado inicial en la prelista -->
+=======
+            <!-- ============================
+                 Estado inicial en la prelista
+            ============================= -->
+>>>>>>> 8a693b5 (prestamos v2)
             <div class="mb-3">
               <label class="form-label">Estado inicial</label>
               <select class="form-select" id="estadoInput">
@@ -66,12 +91,25 @@
                         th:text="${es}"></option>
               </select>
             </div>
+            <!-- ============================
+                 Botón agregar a prelista
+            ============================= -->
+            <button type="button"
+                    class="btn btn-success w-100 mb-3"
+                    onclick="agregarLibroPrelista()">Agregar a la prelista</button>
 
+<<<<<<< HEAD
             <button type="button"
                     class="btn btn-success w-100 mb-3"
                     onclick="agregarLibroPrelista()">Agregar a la prelista</button>
 
             <!-- Tabla Prelista -->
+=======
+
+            <!-- ============================
+                 Tabla PRELISTA
+            ============================= -->
+>>>>>>> 8a693b5 (prestamos v2)
             <div class="table-responsive mb-3">
               <table class="table table-sm table-bordered" id="tabla-prelista">
                 <thead class="table-light">
@@ -86,7 +124,13 @@
               </table>
             </div>
 
+<<<<<<< HEAD
             <!-- Fechas -->
+=======
+            <!-- ============================
+                 Fechas
+            ============================= -->
+>>>>>>> 8a693b5 (prestamos v2)
             <div class="mb-3">
               <label class="form-label">Fecha de Préstamo</label>
               <input type="date"
@@ -113,17 +157,33 @@
             <button type="submit" class="btn btn-primary w-100">
               Confirmar Préstamo
             </button>
+<<<<<<< HEAD
+=======
+              <button type="button" class="btn btn-light border w-100 mt-2" onclick="limpiarPrestamo()">
+              <i class="fa-solid fa-rotate"></i> Limpiar
+            </button>
+>>>>>>> 8a693b5 (prestamos v2)
           </form>
         </div>
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Columna derecha: Préstamos registrados (solo lectura como antes) -->
+=======
+    <!-- =======================================================
+         COLUMNA DERECHA: PRÉSTAMOS REGISTRADOS
+    ======================================================== -->
+>>>>>>> 8a693b5 (prestamos v2)
     <div class="col-md-7">
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
+<<<<<<< HEAD
             <h5 class="card-title mb-0">📚 Préstamos Registrados</h5>
+=======
+            <h5 class="card-title mb-0">Préstamos de Libros Registrados</h5>
+>>>>>>> 8a693b5 (prestamos v2)
             <input type="text" class="form-control w-50" id="buscadorLibros" placeholder="🔎 Buscar por estudiante o libro">
           </div>
 
@@ -135,10 +195,15 @@
                                    (${p.estado} == 'PENDIENTE' ? ' border-warning' : ' border-secondary'))">
                 <div class="card-body d-flex justify-content-between align-items-center">
                   <div>
+<<<<<<< HEAD
                     <h6 class="mb-1 fw-bold">
                       <span th:text="${p.estudiante}"></span>
                       (<span th:text="${p.codigoEstudiante}"></span>)
                     </h6>
+=======
+                    <h6 class="fw-bold mb-1"
+                        th:text="'👤 ' + ${p.estudiante} + ' (' + ${p.codigoEstudiante} + ')'"></h6>
+>>>>>>> 8a693b5 (prestamos v2)
                     <small>Libro:
                       <span class="fw-semibold" th:text="${p.item}"></span>
                     </small><br>
@@ -155,8 +220,13 @@
                                           (${p.estado} == 'VENCIDO' ? ' bg-danger' :
                                           (${p.estado} == 'PENDIENTE' ? ' bg-warning text-dark' : ' bg-secondary'))"
                           th:text="${p.estado}"></span><br>
+<<<<<<< HEAD
                     <!-- Botones aún sin lógica de edición/borrado real -->
                     <button class="btn btn-sm btn-outline-warning me-1" title="Editar">✏️</button>
+=======
+                    
+                    <!--<button class="btn btn-sm btn-outline-warning me-1" title="Editar">✏️</button> -->
+>>>>>>> 8a693b5 (prestamos v2)
                     <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
                       <input type="hidden" name="codigo" th:value="${p.codigo}">
                       <input type="hidden" name="tipo" value="libros">
@@ -179,6 +249,7 @@
 </main>
 
 <footer th:replace="fragments/_header :: footer"></footer>
+<<<<<<< HEAD
 
 <script>
   // Fecha devolución mínima = fecha préstamo + 1 día
@@ -201,6 +272,23 @@ fechaPrestamoInput.addEventListener('change', () => {
   max.setDate(max.getDate() + 7);
 
   // Convertir a YYYY-MM-DD
+=======
+<!-- =======================================================
+     JAVASCRIPT PARA MANEJO DE PRELISTA
+======================================================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const fechaPrestamoInput = document.getElementById('fechaPrestamo');
+  const fechaDevolucionInput = document.getElementById('fechaDevolucion');
+  const formPrestamo = document.getElementById('form-prestamo');
+
+  if (!fechaPrestamoInput || !fechaDevolucionInput || !formPrestamo) {
+    console.warn("No se encontraron los inputs de fechas o el formulario.");
+    return;
+  }
+
+  // Helper: YYYY-MM-DD
+>>>>>>> 8a693b5 (prestamos v2)
   const toDateString = (d) => {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -208,6 +296,7 @@ fechaPrestamoInput.addEventListener('change', () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+<<<<<<< HEAD
   const minDev = toDateString(min);
   const maxDev = toDateString(max);
 
@@ -224,6 +313,57 @@ fechaPrestamoInput.addEventListener('change', () => {
   }
 });
 
+=======
+  // Configurar min/max de fechaDevolucion en base a una fecha de préstamo (YYYY-MM-DD)
+  function configurarRangoDevolucion(fechaPrestamoStr) {
+    if (!fechaPrestamoStr) return;
+
+    const fecha = new Date(fechaPrestamoStr + 'T00:00:00');
+
+    // Mínimo = préstamo + 1 día (mañana)
+    const min = new Date(fecha);
+    min.setDate(min.getDate() + 1);
+
+    // Máximo = préstamo + 7 días
+    const max = new Date(fecha);
+    max.setDate(max.getDate() + 7);
+
+    const minDev = toDateString(min);
+    const maxDev = toDateString(max);
+
+    // Aplicar restricciones al input
+    fechaDevolucionInput.min = minDev;
+    fechaDevolucionInput.max = maxDev;
+
+    // Si el usuario ya eligió algo fuera de rango, solo lo limpiamos,
+    // pero NO lo autollenamos
+    if (fechaDevolucionInput.value &&
+        (fechaDevolucionInput.value < minDev || fechaDevolucionInput.value > maxDev)) {
+      fechaDevolucionInput.value = "";
+    }
+  }
+
+  // --- 1) Cargar automáticamente la fecha de HOY en fechaPrestamo ---
+  (function cargarFechaHoy() {
+    const hoy = new Date();
+    const hoyStr = toDateString(hoy);
+    fechaPrestamoInput.value = hoyStr;
+
+    // Configurar inmediatamente el rango de devolución (min/max),
+    // pero sin poner valor por defecto.
+    configurarRangoDevolucion(hoyStr);
+  })();
+
+  // --- 2) Si el usuario cambia la fecha de préstamo, recalcular rango de devolución ---
+  fechaPrestamoInput.addEventListener('change', () => {
+    const valor = fechaPrestamoInput.value;
+    configurarRangoDevolucion(valor);
+  });
+
+  // =============================
+  //   LÓGICA DE PRELISTA LIBROS
+  // =============================
+>>>>>>> 8a693b5 (prestamos v2)
 
   function agregarLibroPrelista() {
     const libroStr = document.getElementById('libroInput').value.trim();
@@ -267,7 +407,13 @@ fechaPrestamoInput.addEventListener('change', () => {
     document.getElementById('libroInput').value = '';
   }
 
+<<<<<<< HEAD
   function editarFila(btn) {
+=======
+  window.agregarLibroPrelista = agregarLibroPrelista;
+
+  window.editarFila = function (btn) {
+>>>>>>> 8a693b5 (prestamos v2)
     const fila = btn.closest('tr');
     const sn = fila.cells[0].innerText;
     const titulo = fila.cells[1].innerText;
@@ -279,7 +425,14 @@ fechaPrestamoInput.addEventListener('change', () => {
     fila.remove();
   }
 
+<<<<<<< HEAD
   document.getElementById('form-prestamo').addEventListener('submit', function (e) {
+=======
+  // =============================
+  //   VALIDACIÓN AL ENVIAR FORM
+  // =============================
+  formPrestamo.addEventListener('submit', function (e) {
+>>>>>>> 8a693b5 (prestamos v2)
     const tbody = document.querySelector('#tabla-prelista tbody');
     if (tbody.rows.length === 0) {
       e.preventDefault();
@@ -305,9 +458,17 @@ fechaPrestamoInput.addEventListener('change', () => {
     }
     document.getElementById('sns').value = sns.join(',');
 
+<<<<<<< HEAD
     // validar fechas (devolución >= préstamo + 1 día)
     const fp = fechaPrestamoInput.value;
     const fd = fechaDevolucionInput.value;
+=======
+    // validar fechas (devolución >= min y dentro del rango)
+    const fp = fechaPrestamoInput.value;
+    const fd = fechaDevolucionInput.value;
+    const minDev = fechaDevolucionInput.min;
+    const maxDev = fechaDevolucionInput.max;
+>>>>>>> 8a693b5 (prestamos v2)
 
     if (!fp || !fd) {
       e.preventDefault();
@@ -315,6 +476,7 @@ fechaPrestamoInput.addEventListener('change', () => {
       return;
     }
 
+<<<<<<< HEAD
     const minDev = fechaDevolucionInput.min;
     if (fd < minDev) {
       e.preventDefault();
@@ -323,6 +485,71 @@ fechaPrestamoInput.addEventListener('change', () => {
   });
 </script>
 <script>
+=======
+    if (fd < minDev || fd > maxDev) {
+      e.preventDefault();
+      alert('La fecha de devolución debe ser entre 1 y 7 días después de la fecha de préstamo.');
+      return;
+    }
+  });
+});
+</script>
+<script>
+  function limpiarPrestamo() {
+  // Limpiar estudiante
+  document.getElementById("estudianteInput").value = "";
+  document.getElementById("codigoEstudiante").value = "";
+
+  // Limpiar fechas
+  const fechaPrestamoInput = document.getElementById("fechaPrestamo");
+  const fechaDevolucionInput = document.getElementById("fechaDevolucion");
+
+  // Fecha hoy
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  const hoyStr = `${yyyy}-${mm}-${dd}`;
+
+  // Restaurar fecha préstamo a hoy
+  fechaPrestamoInput.value = hoyStr;
+
+  // Disparar evento para actualizar min/max de devolución
+  fechaPrestamoInput.dispatchEvent(new Event("change"));
+
+  // Limpiar fecha de devolución
+  fechaDevolucionInput.value = "";
+
+  // Limpiar SNs ocultos
+  document.getElementById("sns").value = "";
+
+  // Limpiar tabla prelista
+  const tbody = document.querySelector("#tabla-prelista tbody");
+  tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center text-muted py-3">
+          Sin libros agregados
+        </td>
+      </tr>
+  `;
+
+  // Restaurar estado por defecto si existe
+  const estadoInput = document.getElementById("estadoInput");
+  if (estadoInput) estadoInput.value = estadoInput.options[0].value;
+
+  // Opcional: Alerta de reseteo
+  Swal.fire({
+    icon: 'info',
+    title: 'Formulario Restablecido',
+    text: 'El préstamo ha sido cancelado y el formulario se limpió.',
+    timer: 1200,
+    showConfirmButton: false
+  });
+}
+</script>
+
+<script>
+>>>>>>> 8a693b5 (prestamos v2)
 // Filtro por código de estudiante o SN de tablet (o cualquier texto en la tarjeta)
 const inputBuscador = document.getElementById("buscadorLibros");
 const contenedorTarjetas = document.getElementById("lista-prestamos-libros");
