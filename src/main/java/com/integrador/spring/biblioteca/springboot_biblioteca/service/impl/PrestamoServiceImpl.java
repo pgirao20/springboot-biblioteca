@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-=======
+
 // src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/impl/PrestamoServiceImpl.java
->>>>>>> 8a693b5 (prestamos v2)
+
 package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
 
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.*;
@@ -106,11 +105,6 @@ public void registrarPrestamoLibros(String codigoEstudiante,
         itemsCorreo.add(libro.getSn() + " - " + libro.getTitulo());
     }
 
-<<<<<<< HEAD
-    // ✅ Enviar correo una sola vez al final
-=======
-   
->>>>>>> 8a693b5 (prestamos v2)
     if (!itemsCorreo.isEmpty()) {
         emailService.enviarCorreoPrestamo(
                 estudiante,

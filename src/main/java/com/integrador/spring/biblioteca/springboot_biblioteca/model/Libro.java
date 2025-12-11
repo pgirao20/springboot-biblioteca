@@ -32,11 +32,6 @@ public class Libro {
 
     @Column(nullable = false, unique = true, length = 50)
     private String sn;
-<<<<<<< HEAD
-    
-    @Column(nullable = false, length = 20)
-    private String estado;   // "DISPONIBLE" o "PRESTADO"
-=======
 
     @Column(nullable = false, length = 20)
     private String estado = "DISPONIBLE";
@@ -47,6 +42,6 @@ public class Libro {
             estado = "DISPONIBLE";
         }
     }
->>>>>>> 8a693b5 (prestamos v2)
+
 }
 

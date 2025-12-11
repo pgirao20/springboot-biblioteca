@@ -1,9 +1,6 @@
 // src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/service/impl/LibroServiceImpl.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.service.impl;
-<<<<<<< HEAD
 
-=======
->>>>>>> 8a693b5 (prestamos v2)
 import java.util.List;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Libro;
 import com.integrador.spring.biblioteca.springboot_biblioteca.repository.LibroRepository;
