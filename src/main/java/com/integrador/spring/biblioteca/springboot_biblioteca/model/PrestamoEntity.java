@@ -1,9 +1,10 @@
-
-//src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/PrestamoEntity.java
+// src/main/java/com/integrador/spring/biblioteca/springboot_biblioteca/model/PrestamoEntity.java
 package com.integrador.spring.biblioteca.springboot_biblioteca.model;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -25,6 +26,14 @@ public class PrestamoEntity {
 
     @Column(name = "fecha_devolucion", nullable = false)
     private LocalDate fechaDevolucion;
+
+    // opcional: fecha real de devolución
+    @Column(name = "fecha_devolucion_real")
+    private LocalDate fechaDevolucionReal;
+
+    // AQUÍ EL CAMPO QUE FALTABA
+    @Column(name = "costo_reparacion", precision = 10, scale = 2)
+    private BigDecimal costoReparacion;
 
     @ManyToOne
     @JoinColumn(name = "estudiante_id", nullable = false)

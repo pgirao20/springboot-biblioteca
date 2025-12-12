@@ -11,4 +11,6 @@ public interface EstudianteService {
     Optional<Estudiante> buscarPorCodigo(String codigo);
     Estudiante guardar(Estudiante estudiante);
     void eliminar(Long id);
+    boolean estaSancionado(Estudiante estudiante);
+    
 }

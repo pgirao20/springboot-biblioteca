@@ -23,12 +23,21 @@
               <input type="text" class="form-control" th:field="*{usuario}" placeholder="Ej: admin" required>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Contraseña</label>
-              <input type="password" class="form-control" th:field="*{clave}" placeholder="Ingrese contraseña" required>
-              <small class="text-muted">Se recomienda cambiarla periódicamente.</small>
-            </div>
+<div class="mb-3">
+  <label class="form-label fw-semibold">Contraseña</label>
 
+  <input type="password"
+         class="form-control"
+         th:field="*{clave}"
+         th:placeholder="${nuevoUsuario.id == null} ? 'Ingrese contraseña' : 'Dejar vacío para no cambiar'"
+         th:attr="required=${nuevoUsuario.id == null}">
+
+  <small class="text-muted"
+         th:text="${nuevoUsuario.id == null}
+                    ? 'Se recomienda cambiarla periódicamente.'
+                    : 'Si no deseas cambiarla, déjala vacía.'">
+  </small>
+</div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre completo</label>
               <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Pablo Breña" required>

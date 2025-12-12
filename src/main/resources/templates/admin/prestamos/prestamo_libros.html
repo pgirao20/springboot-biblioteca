@@ -15,7 +15,11 @@
       <a class="nav-link" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a>
     </li>
   </ul>
-
+  <!-- Mensaje de sanción -->
+<div th:if="${errorSancion}" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <span th:text="${errorSancion}"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
   <!-- Mensajes -->
   <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -43,6 +47,7 @@
                      id="estudianteInput"
                      placeholder="Buscar por código o nombre"
                      required>
+              <div id="alertaSancionEstudianteLibros" style="display:none;" class="mt-2"></div>
               <datalist id="listaEstudiantes">
                 <option th:each="e : ${estudiantes}"
                         th:value="${e.codigo + ' - ' + e.nombres + ' ' + e.apellidos}">
@@ -82,7 +87,8 @@
             ============================= -->
             <button type="button"
                     class="btn btn-success w-100 mb-3"
-                    onclick="agregarLibroPrelista()">
+                    onclick="agregarLibroPrelista()"
+                    id="btnRegistrarPrestamoLibros">
               Agregar a la prelista
             </button>
 
@@ -100,7 +106,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                  <!-- se llenará dinámicamente; limpiarPrestamo pone una fila "Sin libros agregados" -->
+                  
                 </tbody>
               </table>
             </div>
@@ -173,25 +179,46 @@
                       <span th:text="${p.fechaDevolucion}"></span>
                     </small>
                   </div>
-                  <div class="text-end">
-                    <span class="badge mb-2"
-                          th:classappend="${p.estado == 'ACTIVO'} ? ' bg-success' :
-                                          (${p.estado == 'VENCIDO'} ? ' bg-danger' :
-                                          (${p.estado == 'PENDIENTE'} ? ' bg-warning text-dark' : ' bg-secondary'))"
-                          th:text="${p.estado}"></span><br>
-                    <!-- Botón editar (por ahora sin lógica) -->
-                    <!-- <button class="btn btn-sm btn-outline-warning me-1" title="Editar">✏️</button> -->
-                    <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
-                      <input type="hidden" name="codigo" th:value="${p.codigo}">
-                      <input type="hidden" name="tipo" value="libros">
-                      <button type="submit"
-                              class="btn btn-sm btn-outline-danger me-1"
-                              onclick="return confirm('¿Seguro que deseas eliminar este préstamo?');">
-                        ❌
-                      </button>
-                    </form>
-                    <button class="btn btn-sm btn-outline-info" title="Confirmar Devolución">📥</button>
-                  </div>
+                      <div class="text-end">
+                        <span class="badge mb-2"
+                              th:classappend="${p.estado == 'ACTIVO'} ? ' bg-success' :
+                                              (${p.estado == 'VENCIDO'} ? ' bg-danger' :
+                                              (${p.estado == 'PENDIENTE'} ? ' bg-warning text-dark' : ' bg-secondary'))"
+                              th:text="${p.estado}"></span><br>
+
+                        <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
+                          <input type="hidden" name="codigo" th:value="${p.codigo}">
+                          <input type="hidden" name="tipo" value="libros">
+                          <button type="submit"
+                                  class="btn btn-sm btn-outline-danger me-1"
+                                  onclick="return confirm('¿Seguro que deseas eliminar este préstamo?');">
+                            ❌
+                          </button>
+                        </form>
+                        <!-- Botón activo solo si NO está devuelto -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-info"
+                                title="Confirmar Devolución"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalDevolucion"
+                                th:if="${p.estado != 'DEVUELTO'}"
+                                th:attr="data-codigo=${p.codigo},
+                                        data-estudiante=${p.estudiante},
+                                        data-libro=${p.item},
+                                        data-fecha-prestamo=${p.fechaPrestamo},
+                                        data-fecha-devolucion=${p.fechaDevolucion}">
+                          📥
+                        </button>
+                        <!-- Botón deshabilitado si ya está devuelto -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                title="El libro ya fue devuelto"
+                                th:if="${p.estado == 'DEVUELTO'}"
+                                disabled>
+                          📥
+                        </button>
+                      </div>
+
                 </div>
               </div>
             </div>
@@ -200,6 +227,84 @@
       </div>
     </div>
   </div>
+  <!-- MODAL DEVOLUCIÓN LIBRO -->
+<div class="modal fade" id="modalDevolucion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form th:action="@{/admin/prestamos/libros/devolver}" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Devolución de Libro</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Datos préstamo -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Estudiante</label>
+            <input type="text" class="form-control" id="devEstudiante" readonly>
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Libro</label>
+            <input type="text" class="form-control" id="devLibro" readonly>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Fecha Préstamo / Devolución pactada</label>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" id="devFechaPrestamo" readonly>
+              <input type="text" class="form-control" id="devFechaDevolucion" readonly>
+            </div>
+          </div>
+
+          <!-- Fecha devolución real (hoy, solo informativa) -->
+          <div class="mb-2">
+            <label class="form-label">Fecha de devolución real</label>
+            <input type="text" class="form-control" id="devFechaReal" readonly>
+          </div>
+
+          <!-- Estado final del libro (primero) -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Estado del libro al devolver</label>
+            <select class="form-select" name="estadoLibro" id="estadoLibro">
+              <option value="DISPONIBLE" selected>Disponible (Buen estado)</option>
+              <option value="MANTENIMIENTO">Mantenimiento (requiere reparación)</option>
+              <option value="DAÑADO">Dañado (pérdida total)</option>
+            </select>
+          </div>
+
+          <!-- Valor libro -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Valor del libro (S/)</label>
+            <input type="number" class="form-control"
+                  id="valorLibro" name="valorLibro"
+                  step="0.01" min="0" required>
+          </div>
+
+          <!-- Info de costo y sanción -->
+          <div class="alert alert-info py-2 mb-2" id="infoCosto">
+            Costo por reparación: S/ 0.00
+          </div>
+          <div class="alert alert-warning py-2 mb-0" id="infoSancion" style="display:none;">
+            El estudiante será sancionado por 7 días desde hoy por devolución tardía.
+          </div>
+
+          <!-- hidden: código préstamo -->
+          <input type="hidden" id="codigoPrestamo" name="codigoPrestamo">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit"
+                  class="btn btn-primary">Confirmar Devolución</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 </main>
 
 <footer th:replace="fragments/_footer :: footer"></footer>
@@ -243,11 +348,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const minDev = toDateString(min);
     const maxDev = toDateString(max);
 
-    // Aplicar restricciones al input
     fechaDevolucionInput.min = minDev;
     fechaDevolucionInput.max = maxDev;
 
-    // Si el usuario ya eligió algo fuera de rango, lo limpiamos
     if (fechaDevolucionInput.value &&
         (fechaDevolucionInput.value < minDev || fechaDevolucionInput.value > maxDev)) {
       fechaDevolucionInput.value = "";
@@ -382,6 +485,165 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
   });
+
+  // ==================================================
+  //   VERIFICAR SANCIÓN AL ELEGIR ESTUDIANTE (AJAX)
+  // ==================================================
+  const estudianteInput   = document.getElementById("estudianteInput");
+  const alertaLibros      = document.getElementById("alertaSancionEstudianteLibros");
+  const btnRegistrarLibros = document.getElementById("btnRegistrarPrestamoLibros"); // botón "Agregar a la prelista"
+
+  if (alertaLibros) {
+    alertaLibros.style.display = "none";
+  }
+
+  function obtenerCodigoDesdeInput() {
+    const valor = estudianteInput.value.trim();
+    if (!valor || !valor.includes(" - ")) {
+      return null;
+    }
+    return valor.split(" - ")[0].trim();
+  }
+
+  async function verificarSancionLibros() {
+    if (!estudianteInput) return;
+
+    const codigo = obtenerCodigoDesdeInput();
+    if (!codigo) {
+      if (alertaLibros) alertaLibros.style.display = "none";
+      if (btnRegistrarLibros) btnRegistrarLibros.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await fetch(`/admin/estudiantes/sancion/${encodeURIComponent(codigo)}`);
+      if (!res.ok) {
+        console.error("Error HTTP:", res.status);
+        return;
+      }
+
+      const data = await res.json();
+
+      // Estudiante no existe
+      if (!data.existe) {
+        if (alertaLibros) {
+          alertaLibros.className = "mt-2 alert alert-warning";
+          alertaLibros.textContent = "Estudiante no encontrado.";
+          alertaLibros.style.display = "block";
+        }
+        if (btnRegistrarLibros) btnRegistrarLibros.disabled = true;
+        return;
+      }
+
+      // Estudiante sancionado
+      if (data.sancionado) {
+        if (alertaLibros) {
+          alertaLibros.className = "mt-2 alert alert-danger";
+          alertaLibros.textContent =
+            `Estudiante sancionado hasta ${data.sancionadoHasta}. No puede realizar préstamos de libros.`;
+          alertaLibros.style.display = "block";
+        }
+        if (btnRegistrarLibros) btnRegistrarLibros.disabled = true;
+      } else {
+        // Estudiante OK
+        if (alertaLibros) {
+          alertaLibros.style.display = "none";
+        }
+        if (btnRegistrarLibros) btnRegistrarLibros.disabled = false;
+      }
+
+    } catch (err) {
+      console.error("Error al verificar sanción (libros):", err);
+    }
+  }
+
+  if (estudianteInput) {
+    estudianteInput.addEventListener("change", verificarSancionLibros);
+    estudianteInput.addEventListener("blur", verificarSancionLibros);
+  }
+
+  // ============================
+  //   MODAL DEVOLUCIÓN LIBRO
+  // ============================
+  const modalDevolucion = document.getElementById('modalDevolucion');
+  if (modalDevolucion) {
+    const inputValorLibro   = document.getElementById('valorLibro');
+    const selectEstadoLibro = document.getElementById('estadoLibro');
+    const infoCosto         = document.getElementById('infoCosto');
+    const infoSancion       = document.getElementById('infoSancion');
+
+    function recalcularCosto() {
+      const val = parseFloat(inputValorLibro.value || '0');
+      const est = selectEstadoLibro.value;
+
+      let costo = 0;
+      if (est === 'MANTENIMIENTO') {
+        costo = val * 0.5;
+      } else if (est === 'DAÑADO') {
+        costo = val;
+      } else {
+        costo = 0;
+      }
+      infoCosto.innerText = 'Costo por reparación: S/ ' + costo.toFixed(2);
+    }
+
+    function manejarEstadoLibro() {
+      const est = selectEstadoLibro.value;
+
+      if (est === 'MANTENIMIENTO' || est === 'DAÑADO') {
+        // El usuario debe ingresar el valor real del libro
+        inputValorLibro.readOnly = false;
+        inputValorLibro.value = '';
+      } else {
+        // DISPONIBLE (buen estado): se envía 0 automáticamente
+        inputValorLibro.readOnly = true;
+        inputValorLibro.value = '0';
+      }
+
+      recalcularCosto();
+    }
+
+    modalDevolucion.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      if (!button) return;
+
+      const codigo        = button.getAttribute('data-codigo');
+      const estudiante    = button.getAttribute('data-estudiante');
+      const libro         = button.getAttribute('data-libro');
+      const fPrestamo     = button.getAttribute('data-fecha-prestamo');
+      const fDevolucion   = button.getAttribute('data-fecha-devolucion');
+
+      // Llenar campos del modal
+      document.getElementById('codigoPrestamo').value     = codigo;
+      document.getElementById('devEstudiante').value      = estudiante;
+      document.getElementById('devLibro').value           = libro;
+      document.getElementById('devFechaPrestamo').value   = fPrestamo;
+      document.getElementById('devFechaDevolucion').value = fDevolucion;
+
+      // Fecha real = hoy (solo display)
+      const hoy   = new Date();
+      const yyyy  = hoy.getFullYear();
+      const mm    = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dd    = String(hoy.getDate()).padStart(2, '0');
+      const hoyStr = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('devFechaReal').value = hoyStr;
+
+      // Evaluar si hay sanción (hoy > fechaDevolucion pactada)
+      if (fDevolucion && hoyStr > fDevolucion) {
+        infoSancion.style.display = 'block';
+      } else {
+        infoSancion.style.display = 'none';
+      }
+
+      // Reset estado / valor / costo
+      selectEstadoLibro.value = 'DISPONIBLE';
+      manejarEstadoLibro();
+    });
+
+    inputValorLibro.addEventListener('input', recalcularCosto);
+    selectEstadoLibro.addEventListener('change', manejarEstadoLibro);
+  }
+
 });
 </script>
 

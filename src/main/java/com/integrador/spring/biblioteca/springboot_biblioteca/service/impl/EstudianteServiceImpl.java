@@ -6,6 +6,7 @@ import com.integrador.spring.biblioteca.springboot_biblioteca.service.Estudiante
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,5 +44,15 @@ public class EstudianteServiceImpl implements EstudianteService {
     @Override
     public void eliminar(Long id) {
         estudianteRepository.deleteById(id);
+    }
+    @Override
+    public boolean estaSancionado(Estudiante estudiante) {
+        if (estudiante == null) return false;
+
+        LocalDate hoy = LocalDate.now();
+        LocalDate sancionadoHasta = estudiante.getSancionadoHasta();
+
+        // sancionadoHasta != null y sanción >= hoy → sigue sancionado
+        return sancionadoHasta != null && !sancionadoHasta.isBefore(hoy);
     }
 }

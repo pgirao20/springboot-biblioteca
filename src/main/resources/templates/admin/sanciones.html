@@ -1,7 +1,7 @@
 <!-- src/main/resources/templates/admin/sanciones.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
-      th:with="title='Módulo de Sanciones', active='prestamos'">
+      th:with="title='Módulo de Sanciones', active='sanciones'">
 <head th:replace="fragments/_header :: head(${title})"></head>
 <body>
 <header th:replace="fragments/_header :: header(${active})"></header>
@@ -9,12 +9,7 @@
 <main class="container-fluid mt-4" style="max-width: 1300px;">
 
   <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <a class="nav-link" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a>
-    </li>
+
     <li class="nav-item">
       <a class="nav-link active" th:href="@{/admin/sanciones}">Sanciones</a>
     </li>

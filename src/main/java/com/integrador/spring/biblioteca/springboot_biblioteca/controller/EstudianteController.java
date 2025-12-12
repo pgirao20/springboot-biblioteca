@@ -8,7 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
-
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 @Controller
@@ -159,4 +161,36 @@ public String guardar(HttpSession session,
 
         return "redirect:/admin/estudiantes";
     }
+        // ============================================
+    //  API JSON: Verificar sanción por código
+    // ============================================
+    @GetMapping("/sancion/{codigo}")
+    @ResponseBody
+    public Map<String, Object> verificarSancion(@PathVariable("codigo") String codigo) {
+
+        Map<String, Object> resp = new HashMap<>();
+
+        var optEst = estudianteService.buscarPorCodigo(codigo);
+        if (optEst.isEmpty()) {
+            resp.put("existe", false);
+            return resp;
+        }
+
+        Estudiante est = optEst.get();
+        resp.put("existe", true);
+        resp.put("codigo", est.getCodigo());
+        resp.put("nombres", est.getNombres());
+        resp.put("apellidos", est.getApellidos());
+
+        LocalDate hoy = LocalDate.now();
+        LocalDate sancionadoHasta = est.getSancionadoHasta();
+
+        boolean sancionado = sancionadoHasta != null && !sancionadoHasta.isBefore(hoy);
+
+        resp.put("sancionado", sancionado);
+        resp.put("sancionadoHasta", sancionadoHasta); // se serializa como "2025-12-11"
+
+        return resp;
+    }
+
 }

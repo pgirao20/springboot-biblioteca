@@ -3,6 +3,7 @@
 package com.integrador.spring.biblioteca.springboot_biblioteca.service;
 import com.integrador.spring.biblioteca.springboot_biblioteca.model.Prestamo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,5 +24,13 @@ public interface PrestamoService {
                                   LocalDate fechaPrestamo,
                                   LocalDate fechaDevolucion,
                                   List<String> snsTablets);    
-    void eliminarPrestamoPorCodigo(String codigo);                    
+    void eliminarPrestamoPorCodigo(String codigo); 
+    
+    void registrarDevolucionLibro(String codigoPrestamo,
+                                  String estadoLibro,
+                                  BigDecimal costoReparacion);
+                                  
+    void registrarDevolucionTablet(String codigoPrestamo,
+                               String estadoTablet,
+                               BigDecimal costoReparacion);                              
 }

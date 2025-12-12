@@ -3,6 +3,8 @@ package com.integrador.spring.biblioteca.springboot_biblioteca.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "estudiantes")
 @Data
@@ -35,4 +37,6 @@ public class Estudiante {
 
     @Column(nullable = false, length = 5)
     private String seccion;
+
+    private LocalDate sancionadoHasta;
 }

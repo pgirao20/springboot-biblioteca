@@ -11,6 +11,11 @@
     <li class="nav-item"><a class="nav-link" th:href="@{/admin/prestamos/libros}">Préstamo de Libros</a></li>
     <li class="nav-item"><a class="nav-link active" th:href="@{/admin/prestamos/tablets}">Préstamo de Tablets</a></li>
   </ul>
+  <!-- Mensaje de sanción -->
+<div th:if="${errorSancion}" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <span th:text="${errorSancion}"></span>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
   <!-- Mensajes -->
   <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
   <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -38,6 +43,8 @@
                      id="estudianteInput"
                      placeholder="Buscar por código o nombre"
                      required>
+
+              <div id="alertaSancionEstudianteTablets" style="display:none;" class="mt-2"></div>
 
               <datalist id="listaEstudiantes">
                 <option th:each="e : ${estudiantes}"
@@ -80,7 +87,8 @@
             ============================= -->
             <button type="button"
                     class="btn btn-success w-100 mb-3"
-                    onclick="agregarTabletPrelista()">
+                    onclick="agregarTabletPrelista()"
+                    id="btnRegistrarPrestamoTablets">
               Agregar a la prelista
             </button>
 
@@ -152,10 +160,10 @@
 
           <div class="row g-3" id="lista-prestamos-tablets">
             <div class="col-12" th:each="p : ${prestamos}">
-              <div class="card shadow-sm"
-                   th:classappend="${p.estado == 'Activo'} ? 'border-success' :
-                                   (${p.estado == 'Vencido'} ? 'border-danger' :
-                                   (${p.estado == 'Pendiente'} ? 'border-warning' : 'border-secondary'))">
+<div class="card shadow-sm"
+     th:classappend="${p.estado == 'ACTIVO'} ? ' border-success' :
+                     (${p.estado == 'VENCIDO'} ? ' border-danger' :
+                     (${p.estado == 'PENDIENTE'} ? ' border-warning' : ' border-secondary'))">
                 <div class="card-body d-flex justify-content-between align-items-center">
 
                   <div>
@@ -164,16 +172,14 @@
                     <small th:text="'Tablet: ' + ${p.item}"></small><br>
                     <small th:text="'Préstamo: ' + ${p.fechaPrestamo} + ' | Devolución: ' + ${p.fechaDevolucion}"></small>
                   </div>
-
-                  <div class="text-end">
+                    <div class="text-end">
                     <span class="badge mb-2"
-                          th:classappend="${p.estado == 'Activo'} ? 'bg-success' :
-                                          (${p.estado == 'Vencido'} ? 'bg-danger' :
-                                          (${p.estado == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                          th:classappend="${p.estado == 'ACTIVO'} ? ' bg-success' :
+                                          (${p.estado == 'VENCIDO'} ? ' bg-danger' :
+                                          (${p.estado == 'PENDIENTE'} ? ' bg-warning text-dark' : ' bg-secondary'))"
                           th:text="${p.estado}">
                     </span><br>
-                    <!-- Botón editar (a futuro) -->
-                    <!-- <button class="btn btn-sm btn-outline-warning me-1">✏️</button> -->
+                                        <!-- <button class="btn btn-sm btn-outline-warning me-1">✏️</button> -->
                     <form th:action="@{/admin/prestamos/eliminar}" method="post" class="d-inline">
                       <input type="hidden" name="codigo" th:value="${p.codigo}">
                       <input type="hidden" name="tipo" value="tablets">
@@ -183,7 +189,30 @@
                         ❌
                       </button>
                     </form>
-                    <button class="btn btn-sm btn-outline-info">📥</button>
+
+                    <!-- Botón activo solo si NO está devuelto -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-info"
+                            title="Confirmar Devolución"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalDevolucionTablet"
+                            th:if="${p.estado != 'DEVUELTO'}"
+                            th:attr="data-codigo=${p.codigo},
+                                    data-estudiante=${p.estudiante},
+                                    data-tablet=${p.item},
+                                    data-fecha-prestamo=${p.fechaPrestamo},
+                                    data-fecha-devolucion=${p.fechaDevolucion}">
+                      📥
+                    </button>
+
+                    <!-- Botón deshabilitado si ya está devuelto -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            title="La tablet ya fue devuelta"
+                            th:if="${p.estado == 'DEVUELTO'}"
+                            disabled>
+                      📥
+                    </button>
                   </div>
 
                 </div>
@@ -196,6 +225,87 @@
     </div>
 
   </div>
+  <!-- MODAL DEVOLUCIÓN TABLET -->
+<div class="modal fade" id="modalDevolucionTablet" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form th:action="@{/admin/prestamos/tablets/devolver}" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Devolución de Tablet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <!-- Datos préstamo -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Estudiante</label>
+            <input type="text" class="form-control" id="devEstudianteTablet" readonly>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Tablet</label>
+            <input type="text" class="form-control" id="devTablet" readonly>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Fecha Préstamo / Devolución pactada</label>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" id="devFechaPrestamoTablet" readonly>
+              <input type="text" class="form-control" id="devFechaDevolucionTablet" readonly>
+            </div>
+          </div>
+
+          <!-- Fecha devolución real (hoy, solo informativa) -->
+          <div class="mb-2">
+            <label class="form-label">Fecha de devolución real</label>
+            <input type="text" class="form-control" id="devFechaRealTablet" readonly>
+          </div>
+
+          <!-- Estado final de la tablet -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Estado de la tablet al devolver</label>
+            <select class="form-select" name="estadoTablet" id="estadoTablet">
+              <option value="DISPONIBLE" selected>Disponible (Buen estado)</option>
+              <option value="MANTENIMIENTO">Mantenimiento (requiere reparación)</option>
+              <option value="DAÑADO">Dañado (pérdida total)</option>
+            </select>
+          </div>
+
+          <!-- Valor tablet -->
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Valor de la tablet (S/)</label>
+            <input type="number" class="form-control"
+                   id="valorTablet" name="valorTablet"
+                   step="0.01" min="0" required>
+          </div>
+
+          <!-- Info de costo y sanción -->
+          <div class="alert alert-info py-2 mb-2" id="infoCostoTablet">
+            Costo por reparación: S/ 0.00
+          </div>
+          <div class="alert alert-warning py-2 mb-0" id="infoSancionTablet" style="display:none;">
+            El estudiante será sancionado por 7 días desde hoy por devolución tardía.
+          </div>
+
+          <!-- hidden: código préstamo -->
+          <input type="hidden" id="codigoPrestamoTablet" name="codigoPrestamo">
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit"
+                  class="btn btn-primary">Confirmar Devolución</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 </main>
 
 <footer th:replace="fragments/_footer :: footer"></footer>
@@ -372,6 +482,165 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
   });
+
+    // ==================================================
+  //   VERIFICAR SANCIÓN AL ELEGIR ESTUDIANTE (AJAX)
+  // ==================================================
+  const estudianteInput = document.getElementById("estudianteInput");
+  const alertaTablets = document.getElementById("alertaSancionEstudianteTablets");
+  const btnRegistrarTablets = document.getElementById("btnRegistrarPrestamoTablets");
+
+  if (alertaTablets) {
+    alertaTablets.style.display = "none";
+  }
+
+  function obtenerCodigoDesdeInputTablets() {
+    if (!estudianteInput) return null;
+    const valor = estudianteInput.value.trim();
+    if (!valor || !valor.includes(" - ")) return null;
+    return valor.split(" - ")[0].trim();
+  }
+
+  async function verificarSancionTablets() {
+    const codigo = obtenerCodigoDesdeInputTablets();
+    if (!codigo) {
+      if (alertaTablets) alertaTablets.style.display = "none";
+      if (btnRegistrarTablets) btnRegistrarTablets.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await fetch(`/admin/estudiantes/sancion/${encodeURIComponent(codigo)}`);
+      if (!res.ok) {
+        console.error("Error HTTP:", res.status);
+        return;
+      }
+
+      const data = await res.json();
+
+      // Estudiante no existe
+      if (!data.existe) {
+        if (alertaTablets) {
+          alertaTablets.className = "mt-2 alert alert-warning";
+          alertaTablets.textContent = "Estudiante no encontrado.";
+          alertaTablets.style.display = "block";
+        }
+        if (btnRegistrarTablets) btnRegistrarTablets.disabled = true;
+        return;
+      }
+
+      // Estudiante sancionado
+      if (data.sancionado) {
+        if (alertaTablets) {
+          alertaTablets.className = "mt-2 alert alert-danger";
+          alertaTablets.textContent =
+            `Estudiante sancionado hasta ${data.sancionadoHasta}. No puede realizar préstamos de tablets.`;
+          alertaTablets.style.display = "block";
+        }
+        if (btnRegistrarTablets) btnRegistrarTablets.disabled = true;
+      } else {
+        // Estudiante OK
+        if (alertaTablets) {
+          alertaTablets.style.display = "none";
+        }
+        if (btnRegistrarTablets) btnRegistrarTablets.disabled = false;
+      }
+
+    } catch (err) {
+      console.error("Error al verificar sanción (tablets):", err);
+    }
+  }
+
+  if (estudianteInput) {
+    estudianteInput.addEventListener("change", verificarSancionTablets);
+    estudianteInput.addEventListener("blur", verificarSancionTablets);
+  }
+
+
+// ============================
+  //   MODAL DEVOLUCIÓN TABLET
+  // ============================
+  const modalDevolucionTablet = document.getElementById('modalDevolucionTablet');
+
+  if (modalDevolucionTablet) {
+
+    modalDevolucionTablet.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      if (!button) return;
+
+      const codigo       = button.getAttribute('data-codigo');
+      const estudiante   = button.getAttribute('data-estudiante');
+      const tablet       = button.getAttribute('data-tablet');
+      const fPrestamo    = button.getAttribute('data-fecha-prestamo');
+      const fDevolucion  = button.getAttribute('data-fecha-devolucion');
+
+      // Llenar campos del modal
+      document.getElementById('codigoPrestamoTablet').value     = codigo;
+      document.getElementById('devEstudianteTablet').value      = estudiante;
+      document.getElementById('devTablet').value                = tablet;
+      document.getElementById('devFechaPrestamoTablet').value   = fPrestamo;
+      document.getElementById('devFechaDevolucionTablet').value = fDevolucion;
+
+      // Fecha real = hoy
+      const hoy   = new Date();
+      const yyyy  = hoy.getFullYear();
+      const mm    = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dd    = String(hoy.getDate()).padStart(2, '0');
+      const hoyStr = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('devFechaRealTablet').value = hoyStr;
+
+      // Evaluar sanción (hoy > fechaDevolucion pactada)
+      const infoSancionTablet = document.getElementById('infoSancionTablet');
+      if (fDevolucion && hoyStr > fDevolucion) {
+        infoSancionTablet.style.display = 'block';
+      } else {
+        infoSancionTablet.style.display = 'none';
+      }
+
+      // Reset estado / valor / costo
+      selectEstadoTablet.value = 'DISPONIBLE';
+      manejarEstadoTablet();
+    });
+
+    const inputValorTablet   = document.getElementById('valorTablet');
+    const selectEstadoTablet = document.getElementById('estadoTablet');
+    const infoCostoTablet    = document.getElementById('infoCostoTablet');
+
+    function recalcularCostoTablet() {
+      const val = parseFloat(inputValorTablet.value || '0');
+      const est = selectEstadoTablet.value;
+
+      let costo = 0;
+      if (est === 'MANTENIMIENTO') {
+        costo = val * 0.5;
+      } else if (est === 'DAÑADO') {
+        costo = val;
+      } else {
+        costo = 0;
+      }
+      infoCostoTablet.innerText = 'Costo por reparación: S/ ' + costo.toFixed(2);
+    }
+
+    function manejarEstadoTablet() {
+      const est = selectEstadoTablet.value;
+
+      if (est === 'MANTENIMIENTO' || est === 'DAÑADO') {
+        // El usuario debe ingresar el valor real de la tablet
+        inputValorTablet.readOnly = false;
+        inputValorTablet.value = '';
+      } else {
+        // DISPONIBLE (buen estado): se envía 0 automáticamente
+        inputValorTablet.readOnly = true;
+        inputValorTablet.value = '0';
+      }
+
+      recalcularCostoTablet();
+    }
+
+    inputValorTablet.addEventListener('input', recalcularCostoTablet);
+    selectEstadoTablet.addEventListener('change', manejarEstadoTablet);
+  }
+
 });
 </script>
 
